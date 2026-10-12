@@ -1,0 +1,4 @@
+Spylls 0.1.7, unmodified, by Victor Shepelev and contributors.
+License: Mozilla Public License 2.0 (spylls-LICENSE in this directory).
+Source distribution: https://pypi.org/project/spylls/0.1.7/#files
+Upstream source: https://github.com/zverok/spylls

@@ -1,0 +1,4 @@
+Unmodified Russian Hunspell dictionary from LibreOffice/dictionaries
+Commit: 32b006a2c22a4ac7e8ed3f03346f7b3d85a970a4
+https://github.com/LibreOffice/dictionaries/tree/32b006a2c22a4ac7e8ed3f03346f7b3d85a970a4/ru_RU
+License and copyright: README_ru_RU.txt

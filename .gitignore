@@ -1,0 +1,68 @@
+# Local environments and build output
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# User projects and local data
+Projects/
+real_test/
+*.slproj
+.env
+.env.*
+!.env.example
+
+# Tests, profiling, and debug artifacts
+tests/
+artifacts/
+.revision-test-*/
+*.prof
+*.pstats
+*.lprof
+*.trace
+*.dmp
+*.log
+
+# Python, tools, and Qt caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.pyre/
+.pytype/
+.qmake.stash
+.qmlcache/
+
+# Temporary and editor files
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Executables and release archives
+*.exe
+*.msi
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# Not included in the initial source publication
+/main.py
+/tools/
+/samples/
+/AUDIT_REPORT.md
+/Stellaris Localizer.spec
