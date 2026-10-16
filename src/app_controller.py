@@ -29,6 +29,7 @@ from src.user_dictionary_dialog import UserDictionaryDialog
 from src.about_dialog import show_about
 from src.shortcuts import SHORTCUTS
 from src.glossary_ui import GlossaryController
+from src.recovery import RecoveryManager
 
 
 class AppController(QObject):
@@ -36,6 +37,7 @@ class AppController(QObject):
         super().__init__(parent)
         self.recents = recents if recents is not None else RecentProjects()
         self.settings = AppSettings()
+        self.recovery = RecoveryManager(self)
         self.project = None
         self.window = None
         self.start_window = StartWindow(self.recents, settings=self.settings)
@@ -61,6 +63,14 @@ class AppController(QObject):
             finally:
                 dialog.deleteLater()
         if path:
+            self.open_path(path)
+        else:
+            QTimer.singleShot(0, self, self.offer_startup_recovery)
+
+    def offer_startup_recovery(self):
+        for path in self.recovery.startup_paths(self.start_window):
+            if self.window is not None:
+                break
             self.open_path(path)
 
     def show_projects(self):
@@ -128,7 +138,8 @@ class AppController(QObject):
         if expected_id is not None and project.project_id != expected_id:
             self._wrong_project()
             return False
-        return self.activate_project(project)
+        session = self.recovery.prepare(project, self._parent_window())
+        return self.activate_project(project, recovery_session=session, recovery_checked=True)
 
     def _wrong_project(self):
         QMessageBox.warning(self._parent_window(), QCoreApplication.translate("app_controller", "Выбран другой проект"),
@@ -398,10 +409,12 @@ class AppController(QObject):
             QMessageBox.warning(self.window, QCoreApplication.translate("app_controller", "Обновление сохранено, очистка не завершена"),
                                 "\n".join(cleanup_messages))
 
-    def activate_project(self, project, candidate=None):
+    def activate_project(self, project, candidate=None, *, recovery_session=None, recovery_checked=False):
         try:
             candidate = candidate if candidate is not None else self._build_window(project)
         except Exception as error:
+            if recovery_session is not None:
+                recovery_session.finish()
             QMessageBox.critical(self._parent_window(), QCoreApplication.translate("app_controller", "Не удалось открыть проект"), str(error))
             return False
         old = self.window
@@ -415,6 +428,8 @@ class AppController(QObject):
             start_was_visible = self.start_window.isVisible()
             self.start_window.show()
             if not old.close():
+                if recovery_session is not None:
+                    recovery_session.finish()
                 candidate.deleteLater()
                 if not start_was_visible:
                     self.start_window.hide()
@@ -423,6 +438,10 @@ class AppController(QObject):
                 return False
         self.project = project
         self.window = candidate
+        if not recovery_checked:
+            recovery_session = self.recovery.prepare(project, candidate)
+        if recovery_session is not None:
+            recovery_session.bind(candidate)
         candidate.ui_state.show_window()
         candidate.ui_state.restore()
         self.start_window.hide()

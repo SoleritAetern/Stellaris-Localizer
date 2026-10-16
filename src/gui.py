@@ -977,6 +977,8 @@ class LocalizationDelegate(
         editor.source_index = QPersistentModelIndex(source_index)
         self.editor = editor
         self.edit_index = QPersistentModelIndex(index)
+        if getattr(self.parent(), "local_find", None) is not None:
+            self.parent().local_find.attach_editor(editor)
         self._edit_size = None
         editor.editingFinished.connect(lambda: self.commit_and_close(editor))
         editor.editingAccepted.connect(lambda: self.commit_and_accept(editor))
@@ -1724,6 +1726,7 @@ class MainWindow(QMainWindow):
         self._vanilla_lookup_future = None
         self.ui_state = None
         self.glossary = None
+        self.recovery = None
         self.entry_rows = {row["entry_id"]: i for i, row in enumerate(rows) if row.get("entry_id")}
 
         # -------------------------
@@ -2766,6 +2769,35 @@ class MainWindow(QMainWindow):
         if self.secondary_list_view is not None:
             self.secondary_list_view.finish_editing()
 
+    def recovery_drafts(self):
+        """Read drafts without committing, closing editors or moving their cursors."""
+        from .comment_popover import single_line
+
+        drafts = {}
+        for view in (self.list_view, self.secondary_list_view):
+            if view is None:
+                continue
+            editor = getattr(view.itemDelegate(), "editor", None)
+            if editor is not None and editor.loaded and not editor.closing:
+                source = editor.source_index
+                if source.isValid() and source.model() is self.model:
+                    row = self.model.rows[source.row()]
+                    value = editor.toPlainText().replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
+                    if value != row["ru_text"]:
+                        drafts.setdefault(row["entry_id"], {}).update(
+                            ru_text=value, translation_state="edited", translation_origin="manual")
+            popover = getattr(view, "comment_popover", None)
+            if popover is not None and popover.isVisible() and popover.editable:
+                source = popover.source_index
+                if source.isValid() and source.model() is self.model:
+                    row = self.model.rows[source.row()]
+                    value = single_line(popover.translation.toPlainText())
+                    if value != (popover.original or ""):
+                        value = value if value.strip() else None
+                        drafts.setdefault(row["entry_id"], {}).update(
+                            ru_comment=value, ru_comment_trailing=" # " + value if value is not None else "")
+        return drafts
+
     def open_replace(self, scope):
         query = self.selected_translation_text()
         self.finish_project_editing()
@@ -2824,6 +2856,8 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, QCoreApplication.translate("gui", "Не удалось сохранить проект"), str(error))
             return False
         self.undo_stack.setClean()
+        if self.recovery is not None:
+            self.recovery.saved()
         self.statusBar().showMessage(
             QCoreApplication.translate("gui", "Проект сохранён: {0}").format(result.get('project_path', '')), 8000,
         )
@@ -2879,6 +2913,8 @@ class MainWindow(QMainWindow):
                     self.glossary.cancel_close()
                 event.ignore()
                 return
+        if self.recovery is not None:
+            self.recovery.finish(discard=True)
         event.accept()
         self.workspace_status.dispose()
         self.sidebar.search_timer.stop()
@@ -3593,8 +3629,9 @@ class MainWindow(QMainWindow):
 
         self.current_tab_index = index
         if data.get("kind") == "glossary" and self.glossary is not None:
-            self.local_find.close_find()
-            self.editor_stack.setCurrentWidget(self.glossary.page())
+            page = self.glossary.page()
+            self.editor_stack.setCurrentWidget(page)
+            self.local_find.set_text_target(page.find_target)
             return
         position = data.get("position")
         if (restore_position and not self.list_view.isVisible()
@@ -3608,8 +3645,10 @@ class MainWindow(QMainWindow):
                 files = data.get("files")
                 self.proxy_model.set_file_filter(set(files) if files is not None else None)
                 self.restore_saved_position(self.list_view, self.tab_bar, index, data, immediate=True)
+            self.local_find.set_text_target(None, force=True)
             return
         self.editor_stack.setCurrentWidget(self.localization_page)
+        self.local_find.set_text_target(None)
 
 
         file_paths = data.get(

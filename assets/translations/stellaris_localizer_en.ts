@@ -88,7 +88,7 @@
         <translation>Support on Boosty</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="420"/>
+        <location filename="../../src/start_window.py" line="418"/>
         <source>Не удалось сохранить настройки</source>
         <translation>Could not save settings</translation>
     </message>
@@ -171,8 +171,8 @@
         <translation>The key occurs {0} times. First occurrence: {1}:{2}.</translation>
     </message>
     <message>
-        <location filename="../../src/ui_messages.py" line="23"/>
         <location filename="../../src/project.py" line="157"/>
+        <location filename="../../src/ui_messages.py" line="23"/>
         <source>Не удалось прочитать диагностику снимка: {0}</source>
         <translation>Could not read snapshot diagnostics: {0}</translation>
     </message>
@@ -180,213 +180,213 @@
 <context>
     <name>app_controller</name>
     <message>
-        <location filename="../../src/app_controller.py" line="76"/>
-        <location filename="../../src/app_controller.py" line="349"/>
+        <location filename="../../src/app_controller.py" line="86"/>
+        <location filename="../../src/app_controller.py" line="360"/>
         <source>Открыть проект</source>
         <translation>Open project</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="125"/>
-        <location filename="../../src/app_controller.py" line="405"/>
+        <location filename="../../src/app_controller.py" line="135"/>
+        <location filename="../../src/app_controller.py" line="418"/>
         <source>Не удалось открыть проект</source>
         <translation>Could not open project</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="134"/>
+        <location filename="../../src/app_controller.py" line="145"/>
         <source>Выбран другой проект</source>
         <translation>Different project selected</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="135"/>
+        <location filename="../../src/app_controller.py" line="146"/>
         <source>UUID выбранного файла не совпадает с проектом из списка.
 Для другого проекта используйте «Открыть проект».</source>
         <translation>The UUID of the selected file does not match the project in the list.
 Use “Open project” to open a different project.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="143"/>
+        <location filename="../../src/app_controller.py" line="154"/>
         <source>Не удалось перенести путь справочника в настройки: {0}</source>
         <translation>Could not migrate the reference folder to settings: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="169"/>
+        <location filename="../../src/app_controller.py" line="180"/>
         <source>Проект</source>
         <translation>Project</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="170"/>
+        <location filename="../../src/app_controller.py" line="181"/>
         <source>Новый проект…</source>
         <translation>New project…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="171"/>
+        <location filename="../../src/app_controller.py" line="182"/>
         <source>Открыть проект…</source>
         <translation>Open project…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="172"/>
+        <location filename="../../src/app_controller.py" line="183"/>
         <source>К списку проектов…</source>
         <translation>Back to projects…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="174"/>
+        <location filename="../../src/app_controller.py" line="185"/>
         <source>Сохранить</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="177"/>
+        <location filename="../../src/app_controller.py" line="188"/>
         <source>Обновить источники…</source>
         <translation>Update sources…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="179"/>
+        <location filename="../../src/app_controller.py" line="190"/>
         <source>Экспортировать локализацию…</source>
         <translation>Export localization…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="180"/>
+        <location filename="../../src/app_controller.py" line="191"/>
         <source>Загрузить в папку mod…</source>
         <translation>Deploy to mod folder…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="182"/>
+        <location filename="../../src/app_controller.py" line="193"/>
         <source>Настройки проекта…</source>
         <translation>Project settings…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="183"/>
+        <location filename="../../src/app_controller.py" line="194"/>
         <source>Закрыть проект</source>
         <translation>Close project</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="184"/>
+        <location filename="../../src/app_controller.py" line="195"/>
         <source>Правка</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="185"/>
+        <location filename="../../src/app_controller.py" line="196"/>
         <source>Отменить</source>
         <translation>Undo</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="185"/>
+        <location filename="../../src/app_controller.py" line="196"/>
         <source>Повторить</source>
         <translation>Redo</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="186"/>
+        <location filename="../../src/app_controller.py" line="197"/>
         <source>Копировать</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="186"/>
+        <location filename="../../src/app_controller.py" line="197"/>
         <source>Вставить</source>
         <translation>Paste</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="191"/>
+        <location filename="../../src/app_controller.py" line="202"/>
         <source>Поиск</source>
         <translation>Search</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="192"/>
+        <location filename="../../src/app_controller.py" line="203"/>
         <source>Найти в текущей вкладке</source>
         <translation>Find in current tab</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="193"/>
+        <location filename="../../src/app_controller.py" line="204"/>
         <source>Заменить в текущей вкладке</source>
         <translation>Replace in current tab</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="194"/>
+        <location filename="../../src/app_controller.py" line="205"/>
         <source>Поиск по проекту</source>
         <translation>Search project</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="195"/>
+        <location filename="../../src/app_controller.py" line="206"/>
         <source>Замена по проекту</source>
         <translation>Replace in project</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="200"/>
+        <location filename="../../src/app_controller.py" line="211"/>
         <source>Вид</source>
         <translation>View</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="201"/>
+        <location filename="../../src/app_controller.py" line="212"/>
         <source>Показать / скрыть боковую панель</source>
         <translation>Show / hide sidebar</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="203"/>
+        <location filename="../../src/app_controller.py" line="214"/>
         <source>Открыть / скрыть нижнюю панель</source>
         <translation>Open / hide bottom panel</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="204"/>
+        <location filename="../../src/app_controller.py" line="215"/>
         <source>Приложение</source>
         <translation>Application</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="205"/>
+        <location filename="../../src/app_controller.py" line="216"/>
         <source>Настройки…</source>
         <translation>Settings…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="206"/>
+        <location filename="../../src/app_controller.py" line="217"/>
         <source>Настройки</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="210"/>
+        <location filename="../../src/app_controller.py" line="221"/>
         <source>Пользовательский словарь…</source>
         <translation>User dictionary…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="212"/>
+        <location filename="../../src/app_controller.py" line="223"/>
         <source>О программе</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="237"/>
+        <location filename="../../src/app_controller.py" line="248"/>
         <source>Папка русского мода не найдена. Выберите существующую папку.</source>
         <translation>Russian mod folder not found. Select an existing folder.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="240"/>
+        <location filename="../../src/app_controller.py" line="251"/>
         <source>Не удалось сохранить настройки проекта</source>
         <translation>Could not save project settings</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="256"/>
+        <location filename="../../src/app_controller.py" line="267"/>
         <source>Настройки сохранены. Для загрузки нового источника выберите «Обновить источники…».</source>
         <translation>Settings saved. Choose “Update sources…” to load the new source.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="257"/>
+        <location filename="../../src/app_controller.py" line="268"/>
         <source>Настройки проекта сохранены.</source>
         <translation>Project settings saved.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="270"/>
+        <location filename="../../src/app_controller.py" line="281"/>
         <source>Экспортировать локализацию — выберите папку</source>
         <translation>Export localization — choose a folder</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="274"/>
+        <location filename="../../src/app_controller.py" line="285"/>
         <source>
 …ещё {0}</source>
         <translation>
 …and {0} more</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="275"/>
+        <location filename="../../src/app_controller.py" line="286"/>
         <source>Заменить файлы экспорта?</source>
         <translation>Replace exported files?</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="276"/>
+        <location filename="../../src/app_controller.py" line="287"/>
         <source>В выбранной папке уже есть {0} файлов с такими именами:
 {1}
 
@@ -397,44 +397,44 @@ Use “Open project” to open a different project.</translation>
 Replace these files? Other files will remain unchanged.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="296"/>
+        <location filename="../../src/app_controller.py" line="307"/>
         <source>Небезопасная папка русского мода</source>
         <translation>Unsafe Russian mod folder</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="301"/>
+        <location filename="../../src/app_controller.py" line="312"/>
         <source>Папка русского мода: {0}</source>
         <translation>Russian mod folder: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="307"/>
+        <location filename="../../src/app_controller.py" line="318"/>
         <source>Корень оригинального мода</source>
         <translation>Original mod root folder</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="315"/>
+        <location filename="../../src/app_controller.py" line="326"/>
         <source>Не удалось изменить папку мода</source>
         <translation>Could not change mod folder</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="320"/>
+        <location filename="../../src/app_controller.py" line="331"/>
         <source>Папка оригинального мода сохранена. Для импорта выберите «Обновить источники».</source>
         <translation>Original mod folder saved. Choose “Update sources” to import it.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="347"/>
+        <location filename="../../src/app_controller.py" line="358"/>
         <source>Проект-владелец найден</source>
         <translation>Owning project found</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="348"/>
+        <location filename="../../src/app_controller.py" line="359"/>
         <source>Эта папка перевода связана с проектом «{0}». Передача управления недоступна.
 {1}</source>
         <translation>This translation folder is linked to the project “{0}”. Taking ownership is not available.
 {1}</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="350"/>
+        <location filename="../../src/app_controller.py" line="361"/>
         <source>Отмена</source>
         <translation>Cancel</translation>
     </message>
@@ -455,54 +455,54 @@ Backups: {2}
 To publish your current translations, choose “Deploy to mod folder…” again.</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="389"/>
+        <location filename="../../src/app_controller.py" line="400"/>
         <source>Не удалось обновить источник</source>
         <translation>Could not update source</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="398"/>
+        <location filename="../../src/app_controller.py" line="409"/>
         <source>Обновление сохранено, очистка не завершена</source>
         <translation>Update saved; cleanup incomplete</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="441"/>
+        <location filename="../../src/app_controller.py" line="460"/>
         <source>Проект открыт, но список недавних не сохранён: {0}</source>
         <translation>Project opened, but the recent projects list could not be saved: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="457"/>
+        <location filename="../../src/app_controller.py" line="476"/>
         <source>Проект недоступен</source>
         <translation>Project unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="458"/>
+        <location filename="../../src/app_controller.py" line="477"/>
         <source>Не найден или недоступен файл проекта:
 {0}</source>
         <translation>The project file was not found or cannot be accessed:
 {0}</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="459"/>
+        <location filename="../../src/app_controller.py" line="478"/>
         <source>Найти .slproj…</source>
         <translation>Locate .slproj…</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="460"/>
+        <location filename="../../src/app_controller.py" line="479"/>
         <source>Убрать из недавних</source>
         <translation>Remove from recent projects</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="473"/>
+        <location filename="../../src/app_controller.py" line="492"/>
         <source>Найти проект «{0}»</source>
         <translation>Locate project “{0}”</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="484"/>
+        <location filename="../../src/app_controller.py" line="503"/>
         <source>Не удалось изменить список</source>
         <translation>Could not update list</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="500"/>
+        <location filename="../../src/app_controller.py" line="519"/>
         <source>Не удалось удалить проект</source>
         <translation>Could not delete project</translation>
     </message>
@@ -903,8 +903,8 @@ Translation files will not be overwritten. Run a normal Deploy separately.</tran
         <translation>Deploy requires confirmation in the preview dialog.</translation>
     </message>
     <message>
-        <location filename="../../src/deploy_recovery.py" line="39"/>
         <location filename="../../src/deployment.py" line="83"/>
+        <location filename="../../src/deploy_recovery.py" line="39"/>
         <source>Manifest корня мода содержит файлы вне localisation</source>
         <translation>The mod root manifest contains files outside localisation</translation>
     </message>
@@ -1442,102 +1442,98 @@ The file will not be overwritten.</translation>
 <context>
     <name>glossary_text</name>
     <message>
-        <location filename="../../src/glossary_text.py" line="184"/>
         <source>Найти в глоссарии</source>
-        <translation>Find in glossary</translation>
+        <translation type="vanished">Find in glossary</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="188"/>
         <source>Предыдущее · Shift+F3</source>
-        <translation>Previous · Shift+F3</translation>
+        <translation type="vanished">Previous · Shift+F3</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="189"/>
         <source>Следующее · F3</source>
-        <translation>Next · F3</translation>
+        <translation type="vanished">Next · F3</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="190"/>
         <source>Закрыть · Esc</source>
-        <translation>Close · Esc</translation>
+        <translation type="vanished">Close · Esc</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="424"/>
+        <location filename="../../src/glossary_text.py" line="436"/>
         <source>{0}: не удалось прочитать {1}
 {2}</source>
         <translation>{0}: could not read {1}
 {2}</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="445"/>
+        <location filename="../../src/glossary_text.py" line="457"/>
         <source>Исходный документ не был прочитан; перезапись запрещена.</source>
         <translation>The source document could not be read; overwriting is not allowed.</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="448"/>
+        <location filename="../../src/glossary_text.py" line="460"/>
         <source>Файл изменён другой программой. Черновик сохранён в редакторе; внешние изменения не перезаписаны.</source>
         <translation>The file was changed by another application. Your draft remains in the editor; external changes were not overwritten.</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="468"/>
+        <location filename="../../src/glossary_text.py" line="480"/>
         <source>{0}: не удалось сохранить {1}
 {2}</source>
         <translation>{0}: could not save {1}
 {2}</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="471"/>
-        <location filename="../../src/glossary_text.py" line="490"/>
+        <location filename="../../src/glossary_text.py" line="483"/>
+        <location filename="../../src/glossary_text.py" line="501"/>
         <source>Глоссарий не сохранён</source>
         <translation>Glossary not saved</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="492"/>
+        <location filename="../../src/glossary_text.py" line="503"/>
         <source>Не удалось сохранить изменения Glossary. Несохранённый текст остаётся в редакторе.</source>
         <translation>Could not save glossary changes. Unsaved text remains in the editor.</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="493"/>
+        <location filename="../../src/glossary_text.py" line="504"/>
         <source>Можно сохранить несохранённый текст в отдельные копии или закрыть окно без его сохранения. При закрытии без сохранения этот текст будет потерян.</source>
         <translation>You can save the unsaved text to separate copies or close the window without saving. Closing without saving will discard this text.</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="495"/>
+        <location filename="../../src/glossary_text.py" line="506"/>
         <source>Сохранить копии…</source>
         <translation>Save copies…</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="496"/>
+        <location filename="../../src/glossary_text.py" line="507"/>
         <source>Закрыть без сохранения</source>
         <translation>Close without saving</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="497"/>
+        <location filename="../../src/glossary_text.py" line="508"/>
         <source>Отмена</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="516"/>
+        <location filename="../../src/glossary_text.py" line="527"/>
         <source>Сохранить копию Glossary · {0}</source>
         <translation>Save glossary copy · {0}</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="517"/>
+        <location filename="../../src/glossary_text.py" line="528"/>
         <source>Текст (*.txt)</source>
         <translation>Text (*.txt)</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="523"/>
+        <location filename="../../src/glossary_text.py" line="534"/>
         <source>Для копии выберите отдельный файл, отличный от исходных Glossary и других копий.</source>
         <translation>Choose a separate file for the copy, distinct from the original glossary files and other copies.</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="536"/>
+        <location filename="../../src/glossary_text.py" line="547"/>
         <source>Копия не сохранена</source>
         <translation>Copy not saved</translation>
     </message>
     <message>
-        <location filename="../../src/glossary_text.py" line="603"/>
+        <location filename="../../src/glossary_text.py" line="616"/>
         <source>Совпадение больше не найдено. Повторите поиск.</source>
         <translation>The match was not found. Search again.</translation>
     </message>
@@ -1771,10 +1767,10 @@ Entries will become uncategorized. Subsections will move up one level.</translat
     </message>
     <message>
         <location filename="../../src/gui.py" line="451"/>
-        <location filename="../../src/gui.py" line="1489"/>
-        <location filename="../../src/gui.py" line="2491"/>
-        <location filename="../../src/gui.py" line="2598"/>
-        <location filename="../../src/gui.py" line="2600"/>
+        <location filename="../../src/gui.py" line="1491"/>
+        <location filename="../../src/gui.py" line="2494"/>
+        <location filename="../../src/gui.py" line="2601"/>
+        <location filename="../../src/gui.py" line="2603"/>
         <source>Подтвердить перевод</source>
         <translation>Confirm translation</translation>
     </message>
@@ -1819,217 +1815,217 @@ Entries will become uncategorized. Subsections will move up one level.</translat
         <translation>The model structure changed. Batch Undo/Redo is unavailable.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1025"/>
+        <location filename="../../src/gui.py" line="1027"/>
         <source>Сохранить и подтвердить перевод</source>
         <translation>Save and confirm translation</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1203"/>
-        <location filename="../../src/gui.py" line="1319"/>
+        <location filename="../../src/gui.py" line="1205"/>
+        <location filename="../../src/gui.py" line="1321"/>
         <source>[НЕТ ПЕРЕВОДА]</source>
         <translation>[NO TRANSLATION]</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1486"/>
-        <location filename="../../src/gui.py" line="2587"/>
+        <location filename="../../src/gui.py" line="1488"/>
+        <location filename="../../src/gui.py" line="2590"/>
         <source>Копировать ключ</source>
         <translation>Copy key</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1486"/>
+        <location filename="../../src/gui.py" line="1488"/>
         <source>Копировать EN</source>
         <translation>Copy EN</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1487"/>
+        <location filename="../../src/gui.py" line="1489"/>
         <source>Английский текст значительно изменён. Нажмите Δ для подробного сравнения предыдущего и текущего EN.</source>
         <translation>The English text has changed significantly. Click Δ for a detailed comparison of the previous and current EN.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1488"/>
+        <location filename="../../src/gui.py" line="1490"/>
         <source>Комментарий RU</source>
         <translation>RU comment</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1488"/>
+        <location filename="../../src/gui.py" line="1490"/>
         <source> — комментарий EN изменён после подтверждения</source>
         <translation> — EN comment has changed since confirmation</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1489"/>
+        <location filename="../../src/gui.py" line="1491"/>
         <source>Подтверждение недоступно для этой записи</source>
         <translation>Confirmation is unavailable for this entry</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1800"/>
+        <location filename="../../src/gui.py" line="1803"/>
         <source>Все</source>
         <translation>All</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1802"/>
+        <location filename="../../src/gui.py" line="1805"/>
         <source>Требуют внимания</source>
         <translation>Need attention</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1805"/>
+        <location filename="../../src/gui.py" line="1808"/>
         <source>Недоперевод</source>
         <translation>Untranslated text</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1934"/>
+        <location filename="../../src/gui.py" line="1937"/>
         <source>Отменить</source>
         <translation>Undo</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1952"/>
+        <location filename="../../src/gui.py" line="1955"/>
         <source>Вернуть</source>
         <translation>Redo</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="1973"/>
+        <location filename="../../src/gui.py" line="1976"/>
         <source>Глобальный поиск</source>
         <translation>Global Search</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2074"/>
+        <location filename="../../src/gui.py" line="2077"/>
         <source>Восстановить закрытую вкладку</source>
         <translation>Reopen closed tab</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2167"/>
+        <location filename="../../src/gui.py" line="2170"/>
         <source>Закрепить</source>
         <translation>Pin</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2305"/>
+        <location filename="../../src/gui.py" line="2308"/>
         <source>Все файлы ({0})</source>
         <translation>All files ({0})</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2432"/>
+        <location filename="../../src/gui.py" line="2435"/>
         <source>Перевод: {0}
 Исходник: {1}</source>
         <translation>Translation: {0}
 Source: {1}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2484"/>
+        <location filename="../../src/gui.py" line="2487"/>
         <source>Показать/скрыть Sidebar</source>
         <translation>Show / hide sidebar</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2496"/>
+        <location filename="../../src/gui.py" line="2499"/>
         <source>Заменить в текущей вкладке</source>
         <translation>Replace in current tab</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2497"/>
+        <location filename="../../src/gui.py" line="2500"/>
         <source>Замена во всём проекте</source>
         <translation>Replace throughout project</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2533"/>
-        <location filename="../../src/gui.py" line="2540"/>
+        <location filename="../../src/gui.py" line="2536"/>
+        <location filename="../../src/gui.py" line="2543"/>
         <source>Справочник Stellaris недоступен: {0}</source>
         <translation>Stellaris reference unavailable: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2586"/>
+        <location filename="../../src/gui.py" line="2589"/>
         <source>Копировать</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2588"/>
+        <location filename="../../src/gui.py" line="2591"/>
         <source>Копировать вместе с ключом</source>
         <translation>Copy with key</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2608"/>
+        <location filename="../../src/gui.py" line="2611"/>
         <source>Изменить комментарий</source>
         <translation>Edit comment</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2608"/>
+        <location filename="../../src/gui.py" line="2611"/>
         <source>Добавить комментарий</source>
         <translation>Add comment</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2613"/>
+        <location filename="../../src/gui.py" line="2616"/>
         <source>Удалить комментарий</source>
         <translation>Delete comment</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2638"/>
+        <location filename="../../src/gui.py" line="2641"/>
         <source>Скопировано строк: {0}</source>
         <translation>Rows copied: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2823"/>
+        <location filename="../../src/gui.py" line="2855"/>
         <source>Не удалось сохранить проект</source>
         <translation>Could not save project</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2827"/>
+        <location filename="../../src/gui.py" line="2861"/>
         <source>Проект сохранён: {0}</source>
         <translation>Project saved: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2839"/>
+        <location filename="../../src/gui.py" line="2873"/>
         <source>Проект сохранён, но экспорт не выполнен</source>
         <translation>Project saved, but export failed</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2844"/>
+        <location filename="../../src/gui.py" line="2878"/>
         <source>Экспортировано файлов: {0} | Без перевода: {1} | {2}</source>
         <translation>Files exported: {0} | Untranslated: {1} | {2}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2853"/>
+        <location filename="../../src/gui.py" line="2887"/>
         <source>Не удалось загрузить локализацию в папку mod</source>
         <translation>Could not deploy localization to the mod folder</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2856"/>
+        <location filename="../../src/gui.py" line="2890"/>
         <source> | Удалено файлов: {0}</source>
         <translation> | Files deleted: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2857"/>
+        <location filename="../../src/gui.py" line="2891"/>
         <source>Записано файлов: {0}{1} | {2}</source>
         <translation>Files written: {0}{1} | {2}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2866"/>
+        <location filename="../../src/gui.py" line="2900"/>
         <source>Закрыть проект</source>
         <translation>Close project</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2866"/>
+        <location filename="../../src/gui.py" line="2900"/>
         <source>Сохранить изменения перед закрытием?</source>
         <translation>Save changes before closing?</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="2959"/>
+        <location filename="../../src/gui.py" line="2995"/>
         <source>Без файла</source>
         <translation>No file</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3224"/>
+        <location filename="../../src/gui.py" line="3260"/>
         <source>Совпадение изменилось. Повторите поиск.</source>
         <translation>The match changed. Search again.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3228"/>
+        <location filename="../../src/gui.py" line="3264"/>
         <source>Нет изменений: совпадений нет или замена не меняет текст.</source>
         <translation>No changes: no matches were found, or the replacement leaves the text unchanged.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3234"/>
+        <location filename="../../src/gui.py" line="3270"/>
         <source>Замена не выполнена</source>
         <translation>Replacement failed</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3238"/>
+        <location filename="../../src/gui.py" line="3274"/>
         <source>Заменить совпадения: {0}
 Записей: {1}
 </source>
@@ -2038,83 +2034,83 @@ Entries: {1}
 </translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3240"/>
+        <location filename="../../src/gui.py" line="3276"/>
         <source>Файл: {0}</source>
         <translation>File: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3242"/>
+        <location filename="../../src/gui.py" line="3278"/>
         <source>Файлов: {0}</source>
         <translation>Files: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3248"/>
+        <location filename="../../src/gui.py" line="3284"/>
         <source>Подтвердить замену</source>
         <translation>Confirm replacement</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3252"/>
+        <location filename="../../src/gui.py" line="3288"/>
         <source>Заменить</source>
         <translation>Replace</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3253"/>
+        <location filename="../../src/gui.py" line="3289"/>
         <source>Отмена</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3300"/>
+        <location filename="../../src/gui.py" line="3336"/>
         <source>Загрузка Vanilla…</source>
         <translation>Loading Vanilla…</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3300"/>
-        <location filename="../../src/gui.py" line="3320"/>
+        <location filename="../../src/gui.py" line="3336"/>
+        <location filename="../../src/gui.py" line="3356"/>
         <source>Поиск…</source>
         <translation>Searching…</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3316"/>
+        <location filename="../../src/gui.py" line="3352"/>
         <source>Vanilla недоступна. Проверьте папку игры и повторите поиск.</source>
         <translation>Vanilla is unavailable. Check the game folder and search again.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3357"/>
+        <location filename="../../src/gui.py" line="3393"/>
         <source>{0}+ результатов · показаны первые {1}</source>
         <translation>{0}+ results · showing the first {1}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3358"/>
+        <location filename="../../src/gui.py" line="3394"/>
         <source>Результатов: {0}</source>
         <translation>Results: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3360"/>
+        <location filename="../../src/gui.py" line="3396"/>
         <source> · Vanilla недоступна</source>
         <translation> · Vanilla unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3363"/>
+        <location filename="../../src/gui.py" line="3399"/>
         <source>Ничего не найдено.</source>
         <translation>No results found.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3400"/>
+        <location filename="../../src/gui.py" line="3436"/>
         <source>Глоссарий</source>
         <translation>Glossary</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="3720"/>
+        <location filename="../../src/gui.py" line="3759"/>
         <source>Пропущены закрытые вкладки файлов, которых больше нет в источнике.</source>
         <translation>Skipped closed tabs for files that are no longer in the source.</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="4221"/>
+        <location filename="../../src/gui.py" line="4260"/>
         <source>Количество строк не совпадает</source>
         <translation>Line count mismatch</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="4223"/>
+        <location filename="../../src/gui.py" line="4262"/>
         <source>Вставка отменена.
 
 Выбрано записей: {0}
@@ -2125,12 +2121,12 @@ Selected entries: {0}
 Clipboard lines: {1}</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="4240"/>
+        <location filename="../../src/gui.py" line="4279"/>
         <source>Вставка отменена</source>
         <translation>Paste cancelled</translation>
     </message>
     <message>
-        <location filename="../../src/gui.py" line="4244"/>
+        <location filename="../../src/gui.py" line="4283"/>
         <source>Вставлено переводов: {0}</source>
         <translation>Translations pasted: {0}</translation>
     </message>
@@ -2156,113 +2152,150 @@ Clipboard lines: {1}</translation>
 <context>
     <name>local_find</name>
     <message>
-        <location filename="../../src/local_find.py" line="41"/>
         <source>Показать / скрыть замену RU</source>
-        <translation>Show / hide RU replacement</translation>
+        <translation type="vanished">Show / hide RU replacement</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="52"/>
+        <location filename="../../src/local_find.py" line="48"/>
+        <source>Показать / скрыть замену</source>
+        <translation>Show / hide Replace</translation>
+    </message>
+    <message>
+        <location filename="../../src/local_find.py" line="59"/>
+        <location filename="../../src/local_find.py" line="213"/>
         <source>Найти в RU</source>
         <translation>Find in RU</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="65"/>
+        <location filename="../../src/local_find.py" line="72"/>
         <source>Учитывать регистр</source>
         <translation>Match case</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="70"/>
-        <location filename="../../src/local_find.py" line="71"/>
+        <location filename="../../src/local_find.py" line="77"/>
+        <location filename="../../src/local_find.py" line="78"/>
         <source>Искать только в выделении</source>
         <translation>Find in selection only</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="74"/>
+        <location filename="../../src/local_find.py" line="81"/>
         <source>Предыдущее · Shift+F3</source>
         <translation>Previous · Shift+F3</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="75"/>
+        <location filename="../../src/local_find.py" line="82"/>
         <source>Следующее · F3</source>
         <translation>Next · F3</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="76"/>
+        <location filename="../../src/local_find.py" line="83"/>
         <source>Закрыть · Esc</source>
         <translation>Close · Esc</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="87"/>
+        <location filename="../../src/local_find.py" line="94"/>
         <source>Заменить на</source>
         <translation>Replace with</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="95"/>
+        <location filename="../../src/local_find.py" line="102"/>
         <source>Заменить</source>
         <translation>Replace</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="95"/>
+        <location filename="../../src/local_find.py" line="102"/>
         <source>Заменить текущее и перейти к следующему</source>
         <translation>Replace current match and go to the next</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="96"/>
+        <location filename="../../src/local_find.py" line="103"/>
+        <source>Заменить всё</source>
+        <translation>Replace All</translation>
+    </message>
+    <message>
+        <location filename="../../src/local_find.py" line="103"/>
+        <source>Заменить всё в текущем наборе…</source>
+        <translation>Replace all in the current set…</translation>
+    </message>
+    <message>
+        <location filename="../../src/local_find.py" line="212"/>
+        <source>Найти в глоссарии</source>
+        <translation>Find in glossary</translation>
+    </message>
+    <message>
         <source>Все</source>
-        <translation>All</translation>
+        <translation type="vanished">All</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="96"/>
         <source>Заменить всё в отображаемых записях…</source>
-        <translation>Replace all in displayed entries…</translation>
+        <translation type="vanished">Replace all in displayed entries…</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="443"/>
+        <location filename="../../src/local_find.py" line="630"/>
         <source>Текст изменился. Повторите поиск перед заменой.</source>
         <translation>The text changed. Search again before replacing.</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="453"/>
+        <location filename="../../src/local_find.py" line="640"/>
         <source>Запись {0} должна сохранять whitespace-значение EN. Замена отменена.</source>
         <translation>Entry {0} must retain the EN whitespace value. Replacement cancelled.</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="458"/>
+        <location filename="../../src/local_find.py" line="645"/>
         <source>Заменить всё в локальном RU</source>
         <translation>Replace all in local RU</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="458"/>
+        <location filename="../../src/local_find.py" line="645"/>
         <source>Заменить совпадение RU</source>
         <translation>Replace RU match</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="481"/>
-        <location filename="../../src/local_find.py" line="529"/>
+        <location filename="../../src/local_find.py" line="682"/>
+        <location filename="../../src/local_find.py" line="730"/>
         <source>Замена не выполнена</source>
         <translation>Replacement failed</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="517"/>
         <source>Только зафиксированное выделение текущей вкладки.</source>
-        <translation>Only the captured selection in the current tab.</translation>
+        <translation type="vanished">Only the captured selection in the current tab.</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="517"/>
         <source>Только текущий отображаемый набор.</source>
-        <translation>Only the currently displayed entries.</translation>
+        <translation type="vanished">Only the currently displayed entries.</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="518"/>
         <source>Заменить всё в рабочем RU?</source>
-        <translation>Replace all in working RU?</translation>
+        <translation type="vanished">Replace all in working RU?</translation>
     </message>
     <message>
-        <location filename="../../src/local_find.py" line="519"/>
         <source>{0}
 Совпадений: {1} · Записей: {2}</source>
-        <translation>{0}
+        <translation type="vanished">{0}
 Matches: {1} · Entries: {2}</translation>
+    </message>
+</context>
+<context>
+    <name>local_replace_dialog</name>
+    <message>
+        <location filename="../../src/local_replace_dialog.py" line="9"/>
+        <source>Заменить всё?</source>
+        <translation>Replace All?</translation>
+    </message>
+    <message>
+        <location filename="../../src/local_replace_dialog.py" line="13"/>
+        <source>В текущем наборе будет заменено совпадений: {0}.</source>
+        <translation>Matches to replace in the current set: {0}.</translation>
+    </message>
+    <message>
+        <location filename="../../src/local_replace_dialog.py" line="17"/>
+        <source>Заменить всё</source>
+        <translation>Replace All</translation>
+    </message>
+    <message>
+        <location filename="../../src/local_replace_dialog.py" line="19"/>
+        <source>Отмена</source>
+        <translation>Cancel</translation>
     </message>
 </context>
 <context>
@@ -2431,8 +2464,8 @@ Set the mod locations in Settings or select a mod manually.</translation>
         <translation>The localisation folder must not link outside the original mod folder.</translation>
     </message>
     <message>
-        <location filename="../../src/previous_english_status.py" line="110"/>
         <location filename="../../src/paths.py" line="23"/>
+        <location filename="../../src/previous_english_status.py" line="110"/>
         <source>Папка localisation не найдена</source>
         <translation>The localisation folder was not found</translation>
     </message>
@@ -3562,6 +3595,82 @@ Mod files will not be deleted. You can select the path again later.</translation
     </message>
 </context>
 <context>
+    <name>recovery</name>
+    <message>
+        <location filename="../../src/recovery.py" line="75"/>
+        <source>Сохранённая версия проекта изменилась. Автоматическое восстановление невозможно.</source>
+        <translation>The saved project has changed. Automatic recovery is not possible.</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="226"/>
+        <source>Аварийное восстановление недоступно: проект уже открыт в другом экземпляре приложения.</source>
+        <translation>Crash recovery is unavailable: this project is already open in another instance of the application.</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="271"/>
+        <location filename="../../src/recovery.py" line="448"/>
+        <source>Аварийная копия повреждена или не соответствует записям проекта.</source>
+        <translation>The recovery file is damaged or does not match the project entries.</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="245"/>
+        <location filename="../../src/recovery.py" line="272"/>
+        <location filename="../../src/recovery.py" line="427"/>
+        <location filename="../../src/recovery.py" line="449"/>
+        <source>Аварийное восстановление</source>
+        <translation>Crash recovery</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="273"/>
+        <location filename="../../src/recovery.py" line="450"/>
+        <source>Не удалось восстановить проект. Аварийная копия сохранена:
+{0}
+
+{1}</source>
+        <translation>Could not recover the project. The recovery file has been kept:
+{0}
+
+{1}</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="246"/>
+        <source>Обнаружены несохранённые изменения проекта «{0}».
+Восстановить их?</source>
+        <translation>Unsaved changes were found for project “{0}”.
+Would you like to restore them?</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="248"/>
+        <source>Восстановить</source>
+        <translation>Restore</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="249"/>
+        <source>Не восстанавливать</source>
+        <translation>Discard recovery</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="362"/>
+        <source>Не удалось записать аварийную копию: {0}</source>
+        <translation>Could not write the recovery file: {0}</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="375"/>
+        <source>Не удалось удалить аварийную копию: {0}</source>
+        <translation>Could not delete the recovery file: {0}</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="428"/>
+        <source>Аварийное восстановление недоступно: {0}</source>
+        <translation>Crash recovery is unavailable: {0}</translation>
+    </message>
+    <message>
+        <location filename="../../src/recovery.py" line="444"/>
+        <source>Файл проекта отсутствует или путь аварийной копии некорректен.</source>
+        <translation>The project file is missing or the recovery path is invalid.</translation>
+    </message>
+</context>
+<context>
     <name>replacement</name>
     <message>
         <location filename="../../src/replacement.py" line="62"/>
@@ -4067,7 +4176,7 @@ Usually: steamapps\common\Stellaris</translation>
         <translation>The path must point to a folder: {0}</translation>
     </message>
     <message>
-        <location filename="../../src/app_controller.py" line="56"/>
+        <location filename="../../src/app_controller.py" line="58"/>
         <location filename="../../src/settings_dialog.py" line="339"/>
         <source>Не удалось сохранить настройки</source>
         <translation>Could not save settings</translation>
@@ -4124,100 +4233,104 @@ Usually: steamapps\common\Stellaris</translation>
 <context>
     <name>sidebar</name>
     <message>
-        <location filename="../../src/sidebar.py" line="94"/>
+        <location filename="../../src/sidebar.py" line="93"/>
+        <source>Мод: локализация и текст Glossary.</source>
+        <translation>Mod: localization and glossary text.</translation>
+    </message>
+    <message>
+        <location filename="../../src/sidebar.py" line="155"/>
         <source>Поддержать на Boosty</source>
         <translation>Support on Boosty</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="101"/>
+        <location filename="../../src/sidebar.py" line="162"/>
         <source>Инструкция</source>
         <translation>Guide</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="111"/>
-        <location filename="../../src/sidebar.py" line="112"/>
+        <location filename="../../src/sidebar.py" line="172"/>
+        <location filename="../../src/sidebar.py" line="173"/>
         <source>Настройки</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="146"/>
-        <location filename="../../src/sidebar.py" line="270"/>
+        <location filename="../../src/sidebar.py" line="207"/>
+        <location filename="../../src/sidebar.py" line="332"/>
         <source>Раскрыть замену · только RU текущего мода</source>
         <translation>Expand replacement · current mod RU only</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="147"/>
+        <location filename="../../src/sidebar.py" line="208"/>
         <source>Раскрыть замену</source>
         <translation>Expand replacement</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="150"/>
+        <location filename="../../src/sidebar.py" line="211"/>
         <source>Поиск</source>
         <translation>Search</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="151"/>
+        <location filename="../../src/sidebar.py" line="212"/>
         <source>Поисковый запрос</source>
         <translation>Search query</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="159"/>
+        <location filename="../../src/sidebar.py" line="220"/>
         <source>Заменить на…</source>
         <translation>Replace with…</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="160"/>
+        <location filename="../../src/sidebar.py" line="221"/>
         <source>Текст замены</source>
         <translation>Replacement text</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="181"/>
+        <location filename="../../src/sidebar.py" line="242"/>
         <source>Auto: кириллица — RU, иначе — EN. Key: поиск по ключу.</source>
         <translation>Auto: Cyrillic text searches RU; otherwise EN. Key: search localization keys.</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="182"/>
+        <location filename="../../src/sidebar.py" line="243"/>
         <source>Режим поиска</source>
         <translation>Search mode</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="184"/>
+        <location filename="../../src/sidebar.py" line="76"/>
         <source>Мод</source>
         <translation>Mod</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="186"/>
+        <location filename="../../src/sidebar.py" line="70"/>
         <source>Область поиска</source>
         <translation>Search scope</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="188"/>
         <source>Мод и Both также ищут по тексту Glossary.</source>
-        <translation>Mod and Both also search glossary text.</translation>
+        <translation type="vanished">Mod and Both also search glossary text.</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="192"/>
+        <location filename="../../src/sidebar.py" line="249"/>
         <source>RU · Мод</source>
         <translation>RU · Mod</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="194"/>
+        <location filename="../../src/sidebar.py" line="251"/>
         <source>Только рабочий RU. Непереведённые строки и английские заглушки исключены.</source>
         <translation>Working RU only. Untranslated entries and English placeholders are excluded.</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="200"/>
-        <location filename="../../src/sidebar.py" line="201"/>
+        <location filename="../../src/sidebar.py" line="257"/>
+        <location filename="../../src/sidebar.py" line="258"/>
         <source>Учитывать регистр</source>
         <translation>Match case</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="207"/>
+        <location filename="../../src/sidebar.py" line="264"/>
         <source>Показывать ключи</source>
         <translation>Show keys</translation>
     </message>
     <message>
-        <location filename="../../src/sidebar.py" line="270"/>
+        <location filename="../../src/sidebar.py" line="332"/>
         <source>Свернуть замену</source>
         <translation>Collapse replacement</translation>
     </message>
@@ -4578,57 +4691,57 @@ Translations and their confirmations will be carried over when you apply the upd
         <translation>List</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="431"/>
+        <location filename="../../src/start_window.py" line="429"/>
         <source>Не удалось сохранить настройки</source>
         <translation>Could not save settings</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="440"/>
+        <location filename="../../src/start_window.py" line="438"/>
         <source> — недоступен</source>
         <translation> — unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="448"/>
+        <location filename="../../src/start_window.py" line="446"/>
         <source>Недавних проектов пока нет.</source>
         <translation>No recent projects yet.</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="472"/>
+        <location filename="../../src/start_window.py" line="470"/>
         <source>Открыть</source>
         <translation>Open</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="474"/>
+        <location filename="../../src/start_window.py" line="472"/>
         <source>Показать в проводнике</source>
         <translation>Show in File Explorer</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="479"/>
+        <location filename="../../src/start_window.py" line="477"/>
         <source>Найти перемещённый проект…</source>
         <translation>Locate moved project…</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="482"/>
+        <location filename="../../src/start_window.py" line="480"/>
         <source>Убрать из недавних</source>
         <translation>Remove from recent projects</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="483"/>
+        <location filename="../../src/start_window.py" line="481"/>
         <source>Удалить проект…</source>
         <translation>Delete project…</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="488"/>
+        <location filename="../../src/start_window.py" line="486"/>
         <source>Удаление проекта</source>
         <translation>Delete project</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="490"/>
+        <location filename="../../src/start_window.py" line="488"/>
         <source>Удалить проект «{0}»?</source>
         <translation>Delete project “{0}”?</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="492"/>
+        <location filename="../../src/start_window.py" line="490"/>
         <source>Будет полностью удалена папка:
 {0}
 
@@ -4643,12 +4756,12 @@ Including project.slproj, snapshots/revisions, output_ru, ui-state and all other
 This cannot be undone.</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="493"/>
+        <location filename="../../src/start_window.py" line="491"/>
         <source>Отмена</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/start_window.py" line="494"/>
+        <location filename="../../src/start_window.py" line="492"/>
         <source>Удалить проект</source>
         <translation>Delete project</translation>
     </message>
@@ -4694,12 +4807,12 @@ This cannot be undone.</translation>
 <context>
     <name>text_overlays</name>
     <message>
-        <location filename="../../src/text_overlays.py" line="238"/>
+        <location filename="../../src/text_overlays.py" line="240"/>
         <source>Предыдущий EN</source>
         <translation>Previous EN</translation>
     </message>
     <message>
-        <location filename="../../src/text_overlays.py" line="239"/>
+        <location filename="../../src/text_overlays.py" line="241"/>
         <source>Текущий EN</source>
         <translation>Current EN</translation>
     </message>
@@ -4707,127 +4820,127 @@ This cannot be undone.</translation>
 <context>
     <name>token_inspector</name>
     <message>
-        <location filename="../../src/token_inspector.py" line="130"/>
-        <location filename="../../src/token_inspector.py" line="131"/>
-        <location filename="../../src/token_inspector.py" line="502"/>
+        <location filename="../../src/token_inspector.py" line="142"/>
+        <location filename="../../src/token_inspector.py" line="143"/>
+        <location filename="../../src/token_inspector.py" line="514"/>
         <source>Копировать RU</source>
         <translation>Copy RU</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="135"/>
-        <location filename="../../src/token_inspector.py" line="136"/>
+        <location filename="../../src/token_inspector.py" line="147"/>
+        <location filename="../../src/token_inspector.py" line="148"/>
         <source>Показать подробности</source>
         <translation>Show details</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="154"/>
-        <location filename="../../src/token_inspector.py" line="893"/>
+        <location filename="../../src/token_inspector.py" line="166"/>
+        <location filename="../../src/token_inspector.py" line="952"/>
         <source>Скопировать ключ</source>
         <translation>Copy key</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="163"/>
-        <location filename="../../src/token_inspector.py" line="914"/>
+        <location filename="../../src/token_inspector.py" line="175"/>
+        <location filename="../../src/token_inspector.py" line="973"/>
         <source>Найдено несколько точных определений</source>
         <translation>Multiple exact definitions found</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="172"/>
+        <location filename="../../src/token_inspector.py" line="184"/>
         <source>Дополнительный текст</source>
         <translation>Additional text</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="183"/>
+        <location filename="../../src/token_inspector.py" line="195"/>
         <source>Скопировать {0}</source>
         <translation>Copy {0}</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="205"/>
+        <location filename="../../src/token_inspector.py" line="217"/>
         <source>Перейти к строке</source>
         <translation>Go to entry</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="212"/>
+        <location filename="../../src/token_inspector.py" line="224"/>
         <source>Открыть в нижней панели</source>
         <translation>Open in bottom panel</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="219"/>
+        <location filename="../../src/token_inspector.py" line="231"/>
         <source>Задать отображаемый текст…</source>
         <translation>Set display text…</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="226"/>
+        <location filename="../../src/token_inspector.py" line="238"/>
         <source>Отображаемый текст</source>
         <translation>Display text</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="228"/>
+        <location filename="../../src/token_inspector.py" line="240"/>
         <source>ОК</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="511"/>
-        <location filename="../../src/token_inspector.py" line="863"/>
+        <location filename="../../src/token_inspector.py" line="523"/>
+        <location filename="../../src/token_inspector.py" line="922"/>
         <source>Поиск…</source>
         <translation>Searching…</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="529"/>
-        <location filename="../../src/token_inspector.py" line="919"/>
-        <location filename="../../src/token_inspector.py" line="957"/>
-        <location filename="../../src/token_inspector.py" line="1020"/>
+        <location filename="../../src/token_inspector.py" line="541"/>
+        <location filename="../../src/token_inspector.py" line="978"/>
+        <location filename="../../src/token_inspector.py" line="1016"/>
+        <location filename="../../src/token_inspector.py" line="1087"/>
         <source>Перевод отсутствует</source>
         <translation>No translation</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="530"/>
-        <location filename="../../src/token_inspector.py" line="913"/>
+        <location filename="../../src/token_inspector.py" line="542"/>
+        <location filename="../../src/token_inspector.py" line="972"/>
         <source>Несколько определений</source>
         <translation>Multiple definitions</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="530"/>
-        <location filename="../../src/token_inspector.py" line="910"/>
-        <location filename="../../src/token_inspector.py" line="911"/>
+        <location filename="../../src/token_inspector.py" line="542"/>
+        <location filename="../../src/token_inspector.py" line="969"/>
+        <location filename="../../src/token_inspector.py" line="970"/>
         <source>Ключ не найден</source>
         <translation>Key not found</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="533"/>
-        <location filename="../../src/token_inspector.py" line="928"/>
+        <location filename="../../src/token_inspector.py" line="545"/>
+        <location filename="../../src/token_inspector.py" line="987"/>
         <source>Мод</source>
         <translation>Mod</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="893"/>
+        <location filename="../../src/token_inspector.py" line="952"/>
         <source>Скопировать выражение</source>
         <translation>Copy expression</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="906"/>
+        <location filename="../../src/token_inspector.py" line="965"/>
         <source>Динамическое значение</source>
         <translation>Dynamic value</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="907"/>
+        <location filename="../../src/token_inspector.py" line="966"/>
         <source>Динамическое значение
 Определяется игрой во время выполнения.</source>
         <translation>Dynamic value
 Determined by the game at runtime.</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="1111"/>
+        <location filename="../../src/token_inspector.py" line="1199"/>
         <source>Запись больше недоступна. Откройте токен заново.</source>
         <translation>The entry is no longer available. Open the token again.</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="1115"/>
+        <location filename="../../src/token_inspector.py" line="1203"/>
         <source>RU изменился. Закройте панель и откройте токен заново.</source>
         <translation>RU has changed. Close the panel and open the token again.</translation>
     </message>
     <message>
-        <location filename="../../src/token_inspector.py" line="1120"/>
+        <location filename="../../src/token_inspector.py" line="1208"/>
         <source>Текст нарушает границы конструкции []. Проверьте скобки и кавычки.</source>
         <translation>The text breaks the [] construct. Check brackets and quotes.</translation>
     </message>

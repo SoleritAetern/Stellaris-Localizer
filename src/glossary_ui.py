@@ -103,7 +103,8 @@ class GlossaryController(QObject):
     def page(self):
         if self._page is None:
             self._page = TextGlossaryPage(self.project.root,
-                                         syntax_ranges=self.window.list_view.itemDelegate().syntax_ranges)
+                                         syntax_ranges=self.window.list_view.itemDelegate().syntax_ranges,
+                                         find_controller=self.window.local_find)
             self.window.editor_stack.addWidget(self._page)
         return self._page
 

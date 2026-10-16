@@ -5,7 +5,7 @@ from PySide6.QtCore import QCoreApplication
 from PySide6.QtCore import QPointF, QSize, Qt, Signal, QTimer, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QSplitter,
+    QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QSplitter,
     QStackedWidget, QToolButton, QVBoxLayout, QWidget, QSizePolicy,
 )
 
@@ -58,6 +58,67 @@ def activity_icon(page):
         painter.drawLine(15, 15, 21, 21)
     painter.end()
     return QIcon(pixmap)
+
+
+class SearchScope(QFrame):
+    """Two independent segments mapped to the existing three search scopes."""
+    changed = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self.setObjectName("searchScope")
+        self.setAccessibleName(QCoreApplication.translate("sidebar", "Область поиска"))
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(0)
+        self.segments = {}
+        for scope, title in (("mod", QCoreApplication.translate("sidebar", "Мод")), ("vanilla", "Vanilla")):
+            if self.segments:
+                divider = QFrame()
+                divider.setObjectName("scopeDivider")
+                divider.setFixedWidth(1)
+                layout.addWidget(divider)
+            button = QToolButton()
+            button.setObjectName(scope + "Segment")
+            button.setText(title)
+            button.setAccessibleName(title)
+            button.setCheckable(True)
+            button.setChecked(scope == "mod")
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            button.clicked.connect(self.segment_clicked)
+            self.segments[scope] = button
+            layout.addWidget(button, 1)
+        self.segments["mod"].setToolTip(QCoreApplication.translate("sidebar", "Мод: локализация и текст Glossary."))
+        self.setStyleSheet(f"""
+            QFrame#searchScope {{ background: {theme.css('surface.control')};
+                border: 1px solid {theme.css('border.subtle')}; border-radius: 4px; }}
+            QFrame#scopeDivider {{ background: {theme.css('divider')}; border: none; }}
+            QFrame#searchScope QToolButton {{ background: transparent; color: {theme.css('text.secondary')};
+                border: none; border-bottom: 2px solid transparent; padding: 2px 5px 0px; }}
+            QToolButton#modSegment {{ border-top-left-radius: 3px; border-bottom-left-radius: 3px; }}
+            QToolButton#vanillaSegment {{ border-top-right-radius: 3px; border-bottom-right-radius: 3px; }}
+            QFrame#searchScope QToolButton:hover {{ background: {theme.css('surface.hover')}; }}
+            QFrame#searchScope QToolButton:checked {{ background: {theme.css('surface.selected')}; color: {theme.css('text.primary')}; }}
+            QFrame#searchScope QToolButton:checked:hover,
+            QFrame#searchScope QToolButton:pressed {{ background: {theme.css('surface.pressed')}; color: {theme.css('text.primary')}; }}
+            QFrame#searchScope QToolButton:focus {{ border-bottom-color: {theme.css('border.selector_focus')}; }}
+        """)
+
+    def segment_clicked(self):
+        # Repair an unchecked last segment before publishing the new scope.
+        # Toggling it selects the other source, never an empty search set.
+        if not any(button.isChecked() for button in self.segments.values()):
+            for button in self.segments.values():
+                if button is not self.sender():
+                    button.setChecked(True)
+        self.changed.emit()
+
+    def currentData(self):
+        if all(button.isChecked() for button in self.segments.values()):
+            return "both"
+        return "mod" if self.segments["mod"].isChecked() else "vanilla"
 
 
 class WorkspaceSidebar(QWidget):
@@ -180,12 +241,8 @@ class WorkspaceSidebar(QWidget):
             self.query_mode.addItem(title, mode)
         self.query_mode.setToolTip(QCoreApplication.translate("sidebar", "Auto: кириллица — RU, иначе — EN. Key: поиск по ключу."))
         self.query_mode.setAccessibleName(QCoreApplication.translate("sidebar", "Режим поиска"))
-        self.query_scope = SearchSelector()
-        for title, scope in ((QCoreApplication.translate("sidebar", "Мод"), "mod"), ("Vanilla", "vanilla"), ("Both", "both")):
-            self.query_scope.addItem(title, scope)
-        self.query_scope.setAccessibleName(QCoreApplication.translate("sidebar", "Область поиска"))
-        self.query_scope.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
-        self.query_scope.setToolTip(QCoreApplication.translate("sidebar", "Мод и Both также ищут по тексту Glossary."))
+        self.query_scope = SearchScope()
+        self.query_scope.setFixedHeight(self.query_mode.sizeHint().height())
         options.addWidget(self.query_mode)
         options.addWidget(self.query_scope, 1)
         self.options_stack.addWidget(self.search_options)
@@ -219,7 +276,7 @@ class WorkspaceSidebar(QWidget):
         self.search_timer.timeout.connect(self.request_search)
         self.query_box.textChanged.connect(self.schedule_search)
         self.query_mode.currentIndexChanged.connect(self.schedule_search)
-        self.query_scope.currentIndexChanged.connect(self.schedule_search)
+        self.query_scope.changed.connect(self.scope_changed)
         self.case_sensitive.toggled.connect(self.schedule_search)
         self.query_box.returnPressed.connect(self.request_search)
         self.replacement_box.returnPressed.connect(self.request_search)
@@ -243,6 +300,11 @@ class WorkspaceSidebar(QWidget):
         self.splitter.splitterMoved.connect(self._remember_width)
         layout.addWidget(self.splitter, 1)
         self._update_buttons()
+
+    def scope_changed(self):
+        self.search_timer.stop()
+        self.searchChanged.emit()
+        self.request_search()
 
     def schedule_search(self, *args):
         self.search_timer.stop()

@@ -7,15 +7,20 @@ from copy import deepcopy
 
 from shiboken6 import isValid
 
-from PySide6.QtCore import QEvent, QRectF, Qt, QTimer, QPropertyAnimation, QEasingCurve, QItemSelectionModel
-from PySide6.QtGui import QAction, QKeySequence, QTextCharFormat, QTextLayout
-from PySide6.QtWidgets import QAbstractItemView, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QToolButton, QMessageBox, QWidget, QSizePolicy
+from PySide6.QtCore import QEvent, QRectF, Qt, QTimer, QPropertyAnimation, QEasingCurve, QItemSelectionModel, QPersistentModelIndex, QSignalBlocker
+from PySide6.QtGui import QAction, QKeySequence, QTextCharFormat, QTextLayout, QTextCursor, QTextFormat
+from PySide6.QtWidgets import QAbstractItemView, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QToolButton, QMessageBox, QWidget, QSizePolicy, QTextEdit
 
 from . import theme
 from .shortcuts import SHORTCUTS
 from .global_search import match_spans
 from .global_replace import GlobalReplaceCommand, ReplaceScope, TRANSLATION_FIELDS
 from .translation_baseline import refresh_baseline
+from .find_current import FindAutoReveal, FindQueryEdit, FindCursorTracker, find_button_cursors, nearest_span, local_find_state
+from .local_replace_dialog import confirm_replace_all
+
+
+_FIND_MARKER = int(QTextFormat.Property.UserProperty) + 183
 
 
 class LocalFind(QFrame):
@@ -24,8 +29,10 @@ class LocalFind(QFrame):
         super().__init__(viewport)
         self._filters_ready = False
         self.window, self.view, self.proxy = window, window.list_view, window.proxy_model
+        self.state = local_find_state()
+        self.text_target = None
         self.viewport = viewport
-        self.input = QLineEdit()
+        self.input = FindQueryEdit()
         self.replacement = QLineEdit()
         self.view.local_find = self
         self.setObjectName("localFind")
@@ -38,7 +45,7 @@ class LocalFind(QFrame):
         self.disclosure = QToolButton()
         self.disclosure.setFixedWidth(20)
         self.disclosure.setArrowType(Qt.ArrowType.RightArrow)
-        self.disclosure.setToolTip(QCoreApplication.translate("local_find", "Показать / скрыть замену RU"))
+        self.disclosure.setToolTip(QCoreApplication.translate("local_find", "Показать / скрыть замену"))
         self.disclosure.clicked.connect(lambda: self.set_replace_mode(not self.replace_mode))
         outer.addWidget(self.disclosure, 0, Qt.AlignmentFlag.AlignVCenter)
         body = QVBoxLayout()
@@ -93,7 +100,7 @@ class LocalFind(QFrame):
         replace_buttons.setSpacing(3)
         replace_buttons.addStretch()
         for label, tip, callback in ((QCoreApplication.translate("local_find", "Заменить"), QCoreApplication.translate("local_find", "Заменить текущее и перейти к следующему"), self.replace_current),
-                                     (QCoreApplication.translate("local_find", "Все"), QCoreApplication.translate("local_find", "Заменить всё в отображаемых записях…"), self.replace_all)):
+                                     (QCoreApplication.translate("local_find", "Заменить всё"), QCoreApplication.translate("local_find", "Заменить всё в текущем наборе…"), self.replace_all)):
             button = QToolButton()
             button.setText(label)
             button.setToolTip(tip)
@@ -126,21 +133,25 @@ class LocalFind(QFrame):
         self.dirty = True
         self.query_changed = False
         self._initial_anchor = None
+        self._text_anchor = None
+        self.cursor_tracker = FindCursorTracker(self, self.sync_cursor)
+        self.auto_reveal = FindAutoReveal(self, self.input, self.reveal_query)
         self.match_rows = {}
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.rebuild)
         self.input.textChanged.connect(self.query_updated)
-        self.replacement.textChanged.connect(self.field_edited)
+        self.replacement.textChanged.connect(self.replacement_updated)
         self.case_sensitive.toggled.connect(self.query_updated)
         self.in_selection.toggled.connect(self.selection_toggled)
         self.view.selectionModel().selectionChanged.connect(self.update_selection_available)
+        self.view.selectionModel().currentChanged.connect(self.sync_row)
         self.update_selection_available()
-        self.proxy.modelReset.connect(self.scope_updated)
-        self.proxy.layoutChanged.connect(self.scope_updated)
-        self.proxy.rowsInserted.connect(self.scope_updated)
-        self.proxy.rowsRemoved.connect(self.scope_updated)
-        window.model.dataChanged.connect(self.scope_updated)
+        self.proxy.modelReset.connect(self.translation_updated)
+        self.proxy.layoutChanged.connect(self.translation_updated)
+        self.proxy.rowsInserted.connect(self.translation_updated)
+        self.proxy.rowsRemoved.connect(self.translation_updated)
+        window.model.dataChanged.connect(self.translation_updated)
         self.actions_by_shortcut = {}
         for shortcut, callback in ((SHORTCUTS["find"], self.toggle_find), (SHORTCUTS["replace"], self.toggle_replace), ("F3", lambda: self.step(1)),
                                     ("Shift+F3", lambda: self.step(-1))):
@@ -155,18 +166,165 @@ class LocalFind(QFrame):
         self.escape.triggered.connect(self.close_find)
         self.escape.setEnabled(False)
         self.view.addAction(self.escape)
+        self._escape_host = self.view
         self.hide()
         # Reparenting/layout events can be synchronous. Subscribe only after
         # every widget, action and state used by the handlers is ready.
         self._filters_ready = True
         self.viewport.installEventFilter(self)
+        self.viewport.destroyed.connect(self.viewport_destroyed)
         self.view.installEventFilter(self)
         self.input.installEventFilter(self)
         self.replacement.installEventFilter(self)
         for button in self.findChildren(QToolButton):
             button.installEventFilter(self)
+        find_button_cursors(self)
+        with QSignalBlocker(self.input), QSignalBlocker(self.replacement), QSignalBlocker(self.case_sensitive):
+            self.input.setText(self.state.query)
+            self.replacement.setText(self.state.replacement)
+            self.case_sensitive.setChecked(self.state.case_sensitive)
+        self.set_replace_mode(self.state.replace_mode)
+        self.set_text_target(None, force=True)
+
+    def set_text_target(self, target, *, force=False):
+        """Move the same panel; match indices belong only to the new target."""
+        if target is self.text_target and not force:
+            return
+        self.timer.stop()
+        self.auto_reveal.cancel()
+        self.animation.stop()
+        self.hide()
+        self.highlight_editor()
+        if self.text_target is not None:
+            self.text_target.clear()
+        self._escape_host.removeAction(self.escape)
+        self.viewport.removeEventFilter(self)
+        self.viewport.destroyed.disconnect(self.viewport_destroyed)
+        self.text_target = target
+        host = target.editor if target is not None else self.view
+        self.viewport = host.viewport()
+        self.setParent(self.viewport)
+        self.viewport.installEventFilter(self)
+        self.viewport.destroyed.connect(self.viewport_destroyed)
+        host.addAction(self.escape)
+        self._escape_host = host
+        self.in_selection.setVisible(target is None)
+        self.input.setPlaceholderText(QCoreApplication.translate("local_find", "Найти в глоссарии") if target is not None
+                                      else QCoreApplication.translate("local_find", "Найти в RU"))
+        self.matches, self.by_entry, self.sources, self.match_rows = [], {}, {}, {}
+        self.current = -1
+        self.dirty = self.query_changed = True
+        self._initial_anchor = None
+        self._replacement_undo_active = False
+        self.replace_row.setMaximumHeight(self.replace_row.sizeHint().height() if self.replace_mode else 0)
+        self.replace_row.setVisible(self.replace_mode)
+        self.escape.setEnabled(self.state.opened)
+        if self.state.opened:
+            self.show()
+            self.reposition()
+            self.rebuild()
+        else:
+            self.update_counter()
+        self.view.viewport().update()
+
+    def activate_current_target(self):
+        data = self.window.tab_bar.tabData(self.window.tab_bar.currentIndex()) or {}
+        target = self.window.glossary.page().find_target if data.get("kind") == "glossary" else None
+        self.set_text_target(target)
+
+    def attach_editor(self, editor):
+        self.cursor_tracker.attach(editor)
+        editor.textChanged.connect(self.translation_updated)
+        editor.destroyed.connect(self.translation_updated)
+
+    def sync_cursor(self, editor):
+        if self.text_target is not None:
+            if editor is self.text_target.editor and self.state.opened and not self.dirty:
+                self.current = self.text_target.nearest()
+                self.text_target.highlight()
+            return
+        self.remember_cursor(editor)
+        if self.isHidden():
+            return
+        if self.dirty or self.timer.isActive():
+            self._initial_anchor = self.capture_anchor()
+            return
+        self.current = self.nearest_match(self.capture_anchor())
+        self.update_counter()
+        self.view.viewport().update()
+        self.highlight_editor()
+
+    def remember_cursor(self, editor):
+        delegate = self.view.itemDelegate()
+        if editor is delegate.editor:
+            index, field = delegate.edit_index, "ru_text"
+        elif editor is self.view.en_selection:
+            index, field = editor.index, "new_text"
+        else:
+            return
+        if index.isValid():
+            cursor = editor.textCursor()
+            text = editor.toPlainText().encode("utf-16-le")
+            positions = tuple(len(text[:pos * 2].decode("utf-16-le"))
+                              for pos in (cursor.selectionStart(), cursor.selectionEnd()))
+            self._text_anchor = (QPersistentModelIndex(index), field, positions)
+
+    def sync_row(self, index, *args):
+        if self.cursor_tracker.navigating or self.text_target is not None:
+            return
+        self._text_anchor = (QPersistentModelIndex(index), None, None) if index.isValid() else None
+        if not index.isValid():
+            return
+        number = index.row()
+        heights = self.view._heights
+        if number >= len(heights):
+            self.scope_updated()
+            return
+        anchor = (number, None, heights.prefix(number) + heights.heights[number] / 2)
+        if self.dirty or self.timer.isActive():
+            self._initial_anchor = anchor
+        if not self.isHidden() and not self.dirty:
+            self.current = self.nearest_match(anchor)
+            self.update_counter()
+            self.view.viewport().update()
+            self.highlight_editor()
+
+    def highlight_editor(self):
+        editor = self.view.itemDelegate().editor
+        if editor is None or not isValid(editor):
+            return
+        others = [item for item in editor.extraSelections() if not item.format.property(_FIND_MARKER)]
+        selections = []
+        index = self.view.itemDelegate().edit_index
+        if not self.isHidden() and self.text_target is None and index.isValid():
+            identity = index.data(Qt.ItemDataRole.UserRole).get("entry_id")
+            text = editor.toPlainText()
+            for number, (_, field, start, end) in self.by_entry.get(identity, ()):
+                if field != "ru_text":
+                    continue
+                selection = QTextEdit.ExtraSelection()
+                selection.cursor = QTextCursor(editor.document())
+                selection.cursor.setPosition(len(text[:start].encode("utf-16-le")) // 2)
+                selection.cursor.setPosition(len(text[:end].encode("utf-16-le")) // 2,
+                                             QTextCursor.MoveMode.KeepAnchor)
+                selection.format.setProperty(_FIND_MARKER, True)
+                selection.format.setBackground(theme.color(
+                    'search.active_match.bg' if number == self.current else 'search.match.bg'))
+                selections.append(selection)
+        editor.setExtraSelections(others + selections)
+
+    def viewport_destroyed(self):
+        # The panel belongs to its active viewport. Stop pending work before
+        # Qt destroys the children, and make adapter callbacks inactive.
+        self._filters_ready = False
+        self.text_target = None
+        self.timer.stop()
+        self.auto_reveal.cancel()
+        self.animation.stop()
 
     def reposition(self):
+        if not self._filters_ready or not isValid(self.viewport):
+            return
         available = max(1, self.viewport.width() - 16)
         self.setFixedWidth(min(600, available))
         extra = 0 if self.replace_row.isHidden() else min(self.replace_row.maximumHeight(), self.replace_row.sizeHint().height()) + 3
@@ -176,6 +334,7 @@ class LocalFind(QFrame):
 
     def set_replace_mode(self, enabled):
         enabled = bool(enabled)
+        self.state.replace_mode = enabled
         if enabled == self.replace_mode:
             return
         self.replace_mode = enabled
@@ -202,28 +361,27 @@ class LocalFind(QFrame):
 
     def toggle_find(self):
         query = self.window.selected_translation_text()
-        if (self.window.tab_bar.tabData(self.window.tab_bar.currentIndex()) or {}).get("kind") == "glossary":
-            self.window.glossary.page().find.toggle(query=query)
-            return
+        self.activate_current_target()
         self.set_replace_mode(False)
         self.open(query=query)
 
     def toggle_replace(self):
         query = self.window.selected_translation_text()
+        self.activate_current_target()
         self.set_replace_mode(True)
         self.open(query=query)
 
     def open(self, *, query=None):
-        if (self.window.tab_bar.tabData(self.window.tab_bar.currentIndex()) or {}).get("kind") == "glossary":
-            self.window.glossary.page().find.toggle(query=query)
-            return
+        self.activate_current_target()
         choose_initial = self.isHidden() or (query is not None and query != self.input.text())
         if choose_initial:
             # Read caret geometry before finish_editing destroys/hides it.
-            self._initial_anchor = self.capture_anchor()
+            self._initial_anchor = self.capture_anchor() if self.text_target is None else None
             self.dirty = True
-        self.view.finish_editing()
+        if self.replace_mode and self.text_target is None:
+            self.view.finish_editing()
         self.update_selection_available()
+        self.state.opened = True
         self.show()
         self.reposition()
         self.escape.setEnabled(True)
@@ -239,6 +397,7 @@ class LocalFind(QFrame):
         self.view.viewport().update()
 
     def close_find(self):
+        self.state.opened = False
         self.timer.stop()
         self._initial_anchor = None
         self._replacement_undo_active = False
@@ -246,9 +405,12 @@ class LocalFind(QFrame):
         self.replace_row.setMaximumHeight(self.replace_row.sizeHint().height() if self.replace_mode else 0)
         self.finish_animation()
         self.hide()
+        if self.text_target is not None:
+            self.text_target.clear()
+        self.highlight_editor()
         self.escape.setEnabled(False)
         self.view.viewport().update()
-        self.view.setFocus()
+        (self.text_target.editor if self.text_target is not None else self.view).setFocus()
 
     def eventFilter(self, watched, event):
         if not getattr(self, "_filters_ready", False) or not isValid(self):
@@ -277,7 +439,7 @@ class LocalFind(QFrame):
                 redo = event.matches(QKeySequence.StandardKey.Redo)
                 if undo or redo:
                     if event.type() == QEvent.Type.KeyPress:
-                        stack = self.window.model.undo_stack
+                        stack = self.text_target.editor if self.text_target is not None else self.window.model.undo_stack
                         (stack.undo if undo else stack.redo)()
                     event.accept()
                     return True
@@ -314,10 +476,20 @@ class LocalFind(QFrame):
 
     def query_updated(self, *args):
         self.field_edited()
-        if self._initial_anchor is None:
+        self.state.query = self.input.text()
+        self.state.case_sensitive = self.case_sensitive.isChecked()
+        if self._initial_anchor is None and self.text_target is None:
             self._initial_anchor = self.capture_anchor()
         self.query_changed = True
         self.scope_updated()
+
+    def replacement_updated(self, *args):
+        self.state.replacement = self.replacement.text()
+        self.field_edited()
+
+    def translation_updated(self, *args):
+        if self.text_target is None:
+            self.scope_updated()
 
     def field_edited(self, *args):
         # After typing, Ctrl+Z belongs to the text field again. Immediately after
@@ -325,25 +497,29 @@ class LocalFind(QFrame):
         self._replacement_undo_active = False
 
     def scope_updated(self, *args):
+        if not self._filters_ready:
+            return
         self.dirty = True
         if not self.isHidden():
             self.timer.start(60)
 
     def capture_anchor(self):
-        """Proxy row, optional RU character position, estimated document y."""
+        """Proxy row, optional RU selection range, estimated document y."""
         view = self.view
         delegate = view.itemDelegate()
         for editor, index, field in (
                 (delegate.editor, delegate.edit_index, "ru_text"),
                 (view.en_selection, getattr(view.en_selection, "index", None), "new_text")):
             if editor is not None and editor.isVisible() and index is not None and index.isValid():
-                cursor = editor.textCursor()
-                y = editor.viewport().mapTo(view.viewport(), editor.cursorRect(cursor).center()).y()
-                position = (len(editor.toPlainText().encode("utf-16-le")[:cursor.position() * 2]
-                                .decode("utf-16-le")) if field == "ru_text" else None)
-                return index.row(), position, view.verticalOffset() + y
+                self.remember_cursor(editor)
+                break
         heights = view._heights
         center = view.verticalOffset() + view.viewport().height() / 2
+        if self._text_anchor is not None:
+            index, field, positions = self._text_anchor
+            if index.isValid():
+                number = index.row()
+                return number, positions if field == "ru_text" else None, heights.prefix(number) + heights.heights[number] / 2
         index = view.currentIndex()
         if not index.isValid():
             selected = view.selectionModel().selectedRows()
@@ -371,9 +547,7 @@ class LocalFind(QFrame):
         candidates = self.by_entry[identity]
         number = self.match_rows[identity]
         if number == anchor_row and position is not None:
-            return min(candidates, key=lambda item: (
-                max(item[1][2] - position, position - item[1][3], 0),
-                abs(item[1][2] - position)))[0]
+            return candidates[nearest_span([item[1][2:4] for item in candidates], position)][0]
         # Only this candidate row needs exact QTextLayout geometry. No layout
         # or widget creation for the remaining search results.
         index = self.proxy.index(number, 0)
@@ -399,6 +573,13 @@ class LocalFind(QFrame):
 
     def rebuild(self, *, navigate_query=True):
         self.timer.stop()
+        if self.isHidden():
+            return
+        if self.text_target is not None:
+            self.dirty = self.query_changed = False
+            self._initial_anchor = None
+            self.text_target.rebuild()
+            return
         previous = self.matches[self.current] if 0 <= self.current < len(self.matches) else None
         query_changed = self.query_changed
         anchor = self._initial_anchor
@@ -407,6 +588,10 @@ class LocalFind(QFrame):
         self.matches, self.by_entry, self.sources = [], defaultdict(list), {}
         self.match_rows = {}
         query = self.input.text()  # Spaces are searchable characters too.
+        delegate = self.view.itemDelegate()
+        editor = delegate.editor
+        draft_index = (delegate.edit_index if editor is not None and isValid(editor)
+                       and editor.isVisible() and editor.loaded else None)
         if query:
             # Python access to source rows; no full UserRole dict conversions.
             numbers = ((i, item[0]) for i, item in enumerate(self.proxy.items) if item[0] is not None) if hasattr(self.proxy, "items") else (
@@ -418,20 +603,22 @@ class LocalFind(QFrame):
                     continue
                 self.sources[identity] = number
                 self.match_rows[identity] = proxy_number
-                for start, end in match_spans(row.get("ru_text") or "", query,
+                text = (editor.toPlainText() if draft_index is not None and draft_index.isValid()
+                        and draft_index.row() == proxy_number else row.get("ru_text") or "")
+                for start, end in match_spans(text, query,
                                               case_sensitive=self.case_sensitive.isChecked()):
                     hit = (identity, "ru_text", start, end)
                     self.by_entry[identity].append((len(self.matches), hit))
                     self.matches.append(hit)
-        self.current = (self.nearest_match(anchor or self.capture_anchor()) if anchor is not None or query_changed
-                        else self.matches.index(previous) if previous in self.matches else -1)
+        self.current = (self.nearest_match(anchor or self.capture_anchor())
+                        if anchor is not None or query_changed or draft_index is not None or previous not in self.matches
+                        else self.matches.index(previous))
         self.update_counter()
         self.view.viewport().update()
-        if navigate_query and (anchor is not None or query_changed) and self.current >= 0 and not self.isHidden():
-            self.navigate()
+        self.highlight_editor()
 
     def replacement_text(self):
-        return self.replacement.text()
+        return self.state.replacement
 
     def apply_changes(self, changes, *, batch):
         """Use the existing snapshot command, with the local scope already resolved."""
@@ -461,6 +648,20 @@ class LocalFind(QFrame):
 
     def replace_current(self):
         if not self.replace_mode:
+            return
+        self.auto_reveal.cancel()
+        if self.text_target is not None:
+            self.rebuild()
+            if not self.matches or self.text_target.editor.isReadOnly():
+                return
+            start, end = self.matches[self.current]
+            replacement = self.replacement_text()
+            self.text_target.replace([(start, end)], replacement)
+            self.rebuild()
+            if self.matches:
+                boundary = start + len(replacement.encode("utf-16-le")) // 2
+                self.current = next((i for i, span in enumerate(self.matches) if span[0] >= boundary), 0)
+                self.navigate()
             return
         self.view.finish_editing()
         if self.dirty:
@@ -493,6 +694,10 @@ class LocalFind(QFrame):
     def replace_all(self):
         if not self.replace_mode:
             return
+        self.auto_reveal.cancel()
+        if self.text_target is not None:
+            self.replace_all_text()
+            return
         self.view.finish_editing()
         self.rebuild(navigate_query=False)
         query = self.input.text()
@@ -514,13 +719,9 @@ class LocalFind(QFrame):
         if not changes:
             return
         settings = (query, replacement, self.case_sensitive.isChecked(), self.selection_scope)
-        scope = QCoreApplication.translate("local_find", "Только зафиксированное выделение текущей вкладки.") if self.selection_scope is not None else QCoreApplication.translate("local_find", "Только текущий отображаемый набор.")
-        answer = QMessageBox.question(self, QCoreApplication.translate("local_find", "Заменить всё в рабочем RU?"),
-            QCoreApplication.translate("local_find", "{0}\nСовпадений: {1} · Записей: {2}").format(scope, len(self.matches), len(changes)),
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-        if answer != QMessageBox.StandardButton.Yes:
+        if not confirm_replace_all(self, len(self.matches)):
             return
-        if self.dirty or settings != (self.input.text(), self.replacement_text(), self.case_sensitive.isChecked(), self.selection_scope):
+        if self.text_target is not None or self.dirty or settings != (self.input.text(), self.replacement_text(), self.case_sensitive.isChecked(), self.selection_scope):
             self.rebuild(navigate_query=False)
             return
         try:
@@ -529,17 +730,36 @@ class LocalFind(QFrame):
             QMessageBox.warning(self, QCoreApplication.translate("local_find", "Замена не выполнена"), str(error))
         self.rebuild(navigate_query=False)
 
+    def replace_all_text(self):
+        target = self.text_target
+        self.rebuild()
+        if not self.matches or target.editor.isReadOnly():
+            return
+        editor = target.editor
+        revision = editor.document().revision()
+        settings = (self.state.query, self.state.replacement, self.state.case_sensitive)
+        spans = tuple(self.matches)
+        if not confirm_replace_all(self, len(spans)):
+            return
+        if (self.text_target is not target or target.editor is not editor
+                or editor.document().revision() != revision
+                or settings != (self.state.query, self.state.replacement, self.state.case_sensitive)):
+            self.rebuild()
+            return
+        target.replace(spans, self.replacement_text())
+        self.rebuild()
+
     def update_counter(self):
         self.counter.setText(f"{self.current + 1} / {len(self.matches)}")
 
     def step(self, direction):
-        if (self.window.tab_bar.tabData(self.window.tab_bar.currentIndex()) or {}).get("kind") == "glossary":
-            self.window.glossary.page().find.step(direction)
-            return
+        self.auto_reveal.cancel()
+        self.activate_current_target()
         if self.isHidden():
             self.open()
             return
-        self.view.finish_editing()
+        if self.text_target is None:
+            self.view.finish_editing()
         if self.dirty:
             self.rebuild(navigate_query=False)
         if self.matches:
@@ -548,6 +768,13 @@ class LocalFind(QFrame):
             self.navigate()
 
     def navigate(self):
+        with self.cursor_tracker.navigation():
+            if self.text_target is not None:
+                self.text_target.navigate()
+            else:
+                self._navigate()
+
+    def _navigate(self):
         identity, field, start, end = self.matches[self.current]
         number = self.sources.get(identity)
         if number is None:
@@ -556,8 +783,39 @@ class LocalFind(QFrame):
         if not index.isValid():
             self.scope_updated()
             return
+        self._text_anchor = (QPersistentModelIndex(index), field, (start, end))
         # Match navigation must not consume the user's multi-card selection.
         self.view.selectionModel().setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
+        self.reveal_current()
+
+    def reveal_query(self):
+        if self.text_target is not None:
+            self.rebuild()
+            self.reveal_current()
+            return
+        anchor = self.capture_anchor()
+        if self.dirty or self.timer.isActive():
+            self._initial_anchor = anchor
+            self.rebuild(navigate_query=False)
+        else:
+            self.current = self.nearest_match(anchor)
+            self.update_counter()
+            self.highlight_editor()
+        self.reveal_current()
+
+    def reveal_current(self):
+        if self.text_target is not None:
+            self.text_target.reveal()
+            return
+        if not 0 <= self.current < len(self.matches):
+            return
+        identity = self.matches[self.current][0]
+        number = self.sources.get(identity)
+        if number is None:
+            return
+        index = self.proxy.mapFromSource(self.window.model.index(number, 0))
+        if not index.isValid():
+            return
         self.view.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtCenter)
         row = self.window.model.rows[number]
         # Native scrollTo measures only the target and its viewport. A second
@@ -593,11 +851,11 @@ class LocalFind(QFrame):
         return spans
 
     def is_current_row(self, row):
-        return (not self.isHidden() and 0 <= self.current < len(self.matches)
+        return (self.text_target is None and not self.isHidden() and 0 <= self.current < len(self.matches)
                 and self.matches[self.current][0] == row.get("entry_id"))
 
     def selections(self, row, field, layout):
-        if self.isHidden():
+        if self.isHidden() or self.text_target is not None:
             return []
         text_layout = layout.source_layout if field == "new_text" else layout.russian_layout
         text = text_layout.text()
@@ -615,7 +873,7 @@ class LocalFind(QFrame):
         return result
 
     def paint_key(self, painter, rect, shown, metrics, row):
-        if self.isHidden():
+        if self.isHidden() or self.text_target is not None:
             return
         prefix = 2 if row.get("kind") == "DISABLED_ENTRY" else 0
         painter.save()

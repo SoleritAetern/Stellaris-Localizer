@@ -62,6 +62,8 @@ class EnglishSelectionOverlay(BoundaryWhitespaceMixin, TokenSelectionMixin, QPla
         self.document().setDocumentMargin(0)
         self.highlighter = SelectionHighlighter(self.document(), view.itemDelegate().syntax_ranges)
         view.occurrences.attach(self)
+        if getattr(view, "local_find", None) is not None:
+            view.local_find.attach_editor(self)
         view.viewport().installEventFilter(self)
         view.verticalScrollBar().valueChanged.connect(self.dismiss_for_scroll)
         self.hide()

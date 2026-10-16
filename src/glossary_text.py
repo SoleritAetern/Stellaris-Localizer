@@ -6,15 +6,16 @@ from pathlib import Path
 import re
 
 from PySide6.QtCore import QEvent, QIODevice, QSaveFile, QStandardPaths, Qt, QTimer, QSignalBlocker, QPointF, QRect, QSize, Signal
-from PySide6.QtGui import QFont, QKeySequence, QTextCursor, QTextDocument, QTextCharFormat, QPainter, QTextFormat, QTextOption
+from PySide6.QtGui import QFont, QKeySequence, QTextCursor, QTextCharFormat, QPainter, QTextFormat, QTextOption
 from PySide6.QtWidgets import (
-    QButtonGroup, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
+    QApplication, QButtonGroup, QHBoxLayout, QLabel, QMessageBox,
     QPlainTextDocumentLayout, QPlainTextEdit, QStackedWidget, QTextEdit, QToolButton, QVBoxLayout, QWidget, QFileDialog,
 )
 
 from . import theme
 from .text_overlays import SelectionHighlighter
 from .search_selection import SearchSelectionCapture
+from .local_find_text import GlossaryFindTarget
 
 
 class NotebookDocumentLayout(QPlainTextDocumentLayout):
@@ -50,12 +51,119 @@ class LineNumberArea(QWidget):
         super().__init__(editor)
         self.editor = editor
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent)
+        self._anchor = None
+        self._selection = None
+        self._dragging = False
+        self._drag_y = 0
+        self._scroll_timer = QTimer(self)
+        self._scroll_timer.setInterval(50)
+        self._scroll_timer.timeout.connect(self._scroll_drag)
 
     def sizeHint(self):
         return QSize(self.editor.gutter_width(), 0)
 
     def paintEvent(self, event):
         self.editor.paint_line_numbers(event)
+
+    def _block_at(self, y):
+        # Use the same logical blocks and wrapped heights as the painted gutter.
+        y = max(0, min(y, self.height() - 1))
+        block = self.editor.firstVisibleBlock()
+        top = self.editor.blockBoundingGeometry(block).translated(self.editor.contentOffset()).top()
+        while block.isValid():
+            height = self.editor.blockBoundingRect(block).height()
+            if block.isVisible() and (y < top + height or not block.next().isValid()):
+                return block
+            top += height
+            following = block.next()
+            if not following.isValid():
+                return block
+            block = following
+        return block
+
+    def _select_block(self, block):
+        if self._anchor is None or not block.isValid():
+            return
+        anchor = self._anchor.block()
+        if not anchor.isValid():
+            return
+
+        def end_of_line(item):
+            following = item.next()
+            return following.position() if following.isValid() else self.editor.document().characterCount() - 1
+
+        cursor = QTextCursor(self.editor.document())
+        if block.position() < anchor.position():
+            cursor.setPosition(end_of_line(anchor))
+            cursor.setPosition(block.position(), QTextCursor.MoveMode.KeepAnchor)
+        else:
+            cursor.setPosition(anchor.position())
+            cursor.setPosition(end_of_line(block), QTextCursor.MoveMode.KeepAnchor)
+        # Selecting a wrapped line includes its offscreen end. Keep the pointer's
+        # visual row stable; only the edge-drag timer should scroll the viewport.
+        bar = self.editor.verticalScrollBar()
+        scroll = bar.value()
+        self.editor.setTextCursor(cursor)
+        bar.setValue(scroll)
+        self._selection = (cursor.anchor(), cursor.position())
+
+    def mousePressEvent(self, event):
+        if event.button() != Qt.MouseButton.LeftButton:
+            super().mousePressEvent(event)
+            return
+        block = self._block_at(event.position().y())
+        if not block.isValid():
+            return
+        cursor = self.editor.textCursor()
+        if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            if self._anchor is None or self._selection != (cursor.anchor(), cursor.position()):
+                self._anchor = QTextCursor(self.editor.document())
+                self._anchor.setPosition(cursor.anchor())
+        else:
+            self._anchor = QTextCursor(block)
+        self.editor.setFocus(Qt.FocusReason.MouseFocusReason)
+        self._dragging = True
+        self._drag_y = event.position().y()
+        self._select_block(block)
+        event.accept()
+
+    def mouseMoveEvent(self, event):
+        if not self._dragging:
+            super().mouseMoveEvent(event)
+            return
+        self._drag_y = event.position().y()
+        self._select_block(self._block_at(self._drag_y))
+        if self._drag_y < 0 or self._drag_y >= self.height():
+            if not self._scroll_timer.isActive():
+                self._scroll_timer.start()
+        else:
+            self._scroll_timer.stop()
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self._dragging:
+            self._select_block(self._block_at(event.position().y()))
+            self._dragging = False
+            self._scroll_timer.stop()
+            event.accept()
+        else:
+            super().mouseReleaseEvent(event)
+
+    def _scroll_drag(self):
+        if not self._dragging or not QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
+            self._dragging = False
+            self._scroll_timer.stop()
+            return
+        distance = self._drag_y if self._drag_y < 0 else self._drag_y - self.height() + 1
+        step = min(5, 1 + int(abs(distance) / 20))
+        bar = self.editor.verticalScrollBar()
+        bar.setValue(bar.value() + (-step if distance < 0 else step))
+        self._select_block(self._block_at(self._drag_y))
+
+    def hideEvent(self, event):
+        self._dragging = False
+        self._scroll_timer.stop()
+        super().hideEvent(event)
 
 
 class NotebookEdit(QPlainTextEdit):
@@ -154,6 +262,50 @@ class NotebookEdit(QPlainTextEdit):
         super().setExtraSelections([line, *self._other_selections])
         self.gutter.update()
 
+    def center_range(self, start, end):
+        """Scroll to a range using temporary cursors, never the editor's caret."""
+        first, last = QTextCursor(self.document()), QTextCursor(self.document())
+        first.setPosition(start)
+        last.setPosition(max(start, end - 1))
+        bar = self.verticalScrollBar()
+        block = first.block()
+        self.blockBoundingRect(block)
+        layout = block.layout()
+        number = layout.lineForTextPosition(first.positionInBlock()).lineNumber()
+        if last.block() == block:
+            number = (number + layout.lineForTextPosition(last.positionInBlock()).lineNumber()) // 2
+        remaining = self.viewport().height() / 2 - layout.lineAt(number).height() / 2
+        # Shape only the target and the preceding half-viewport. Distant wrapped
+        # blocks may still have estimated line counts; pixel-delta scrolling
+        # alone would walk through them one block at a time.
+        while remaining > 0:
+            previous, previous_number = block, number - 1
+            if previous_number < 0:
+                previous = block.previous()
+                if not previous.isValid():
+                    break
+                self.blockBoundingRect(previous)
+                previous_number = previous.layout().lineCount() - 1
+            height = previous.layout().lineAt(previous_number).height() * NotebookDocumentLayout.LINE_SPACING
+            if remaining < height / 2:
+                break
+            remaining -= height
+            block, number = previous, previous_number
+        bar.setValue(block.firstLineNumber() + number)
+        # QPlainTextEdit's scrollbar uses visual lines rather than pixels.
+        # Recheck after scrolling so wrapped blocks can finish their layout.
+        for _ in range(8):
+            block = first.block()
+            self.blockBoundingRect(block)
+            line = block.layout().lineForTextPosition(first.positionInBlock())
+            line_height = max(1, line.height() * NotebookDocumentLayout.LINE_SPACING)
+            y = (self.cursorRect(first).center().y() + self.cursorRect(last).center().y()) / 2
+            steps = round((y - self.viewport().height() / 2) / line_height)
+            old = bar.value()
+            bar.setValue(old + steps)
+            if bar.value() == old:
+                break
+
     def event(self, event):
         if event.type() == QEvent.Type.ShortcutOverride:
             if any(event.matches(key) for key in (
@@ -169,151 +321,10 @@ class NotebookEdit(QPlainTextEdit):
         return result
 
 
-class TextFind(QFrame):
-    def __init__(self, page):
-        super().__init__(page.current_editor().viewport())
-        self.page = page
-        self.setObjectName("localFind")
-        self.matches = []
-        self.current = -1
-        self.revision = -1
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(5, 3, 5, 3)
-        layout.setSpacing(4)
-        self.input = QLineEdit()
-        self.input.setPlaceholderText(QCoreApplication.translate("glossary_text", "Найти в глоссарии"))
-        self.counter = QLabel("0 / 0")
-        layout.addWidget(self.input, 1)
-        layout.addWidget(self.counter)
-        for text, tip, callback in (("↑", QCoreApplication.translate("glossary_text", "Предыдущее · Shift+F3"), lambda: self.step(-1)),
-                                    ("↓", QCoreApplication.translate("glossary_text", "Следующее · F3"), lambda: self.step(1)),
-                                    ("×", QCoreApplication.translate("glossary_text", "Закрыть · Esc"), self.close_find)):
-            button = QToolButton()
-            button.setText(text)
-            button.setToolTip(tip)
-            button.clicked.connect(callback)
-            layout.addWidget(button)
-        self.timer = QTimer(self)
-        self.timer.setSingleShot(True)
-        self.timer.setInterval(100)
-        self.timer.timeout.connect(self.rebuild)
-        self.input.textChanged.connect(lambda: self.timer.start())
-        self.input.installEventFilter(self)
-        for editor in page.editors.values():
-            editor.viewport().installEventFilter(self)
-            editor.installEventFilter(self)
-            editor.textChanged.connect(self.text_changed)
-            editor.updateRequest.connect(self.viewport_updated)
-        self.hide()
-
-    def viewport_updated(self, *args):
-        # QPlainTextEdit scrolls its viewport children along with the text.
-        # Find is fixed UI, so restore its anchor after that native scroll.
-        if not self.isHidden():
-            self.reposition()
-
-    def text_changed(self):
-        if not self.isHidden():
-            self.timer.start()
-
-    def reposition(self):
-        viewport = self.page.current_editor().viewport()
-        self.setFixedWidth(min(440, max(1, viewport.width() - 16)))
-        self.setFixedHeight(self.layout().sizeHint().height())
-        self.move(max(0, viewport.width() - self.width() - 8), 8)
-        self.raise_()
-
-    def attach(self):
-        visible = not self.isHidden()
-        self.setParent(self.page.current_editor().viewport())
-        if visible:
-            self.show()
-            self.reposition()
-            self.rebuild()
-
-    def toggle(self, *, query=None):
-        was_hidden = self.isHidden()
-        self.show()
-        self.reposition()
-        if query is not None and query != self.input.text():
-            self.input.setText(query)
-        elif was_hidden:
-            self.rebuild()
-        self.input.setFocus(Qt.FocusReason.ShortcutFocusReason)
-        self.input.selectAll()
-
-    def close_find(self):
-        self.timer.stop()
-        self.hide()
-        self.page.current_editor().setExtraSelections([])
-        self.page.current_editor().setFocus()
-
-    def rebuild(self):
-        self.timer.stop()
-        editor = self.page.current_editor()
-        document = editor.document()
-        self.revision = document.revision()
-        self.matches = []
-        if self.input.text():
-            cursor = document.find(self.input.text(), 0, QTextDocument.FindFlag(0))
-            while not cursor.isNull():
-                self.matches.append((cursor.selectionStart(), cursor.selectionEnd()))
-                cursor = document.find(self.input.text(), cursor.selectionEnd(), QTextDocument.FindFlag(0))
-        position = editor.textCursor().selectionStart()
-        self.current = next((i for i, (start, end) in enumerate(self.matches) if start >= position), 0) if self.matches else -1
-        self.counter.setText(f"{self.current + 1} / {len(self.matches)}")
-        if self.matches:
-            self.navigate()
-        else:
-            editor.setExtraSelections([])
-
-    def step(self, direction):
-        if self.isHidden():
-            self.toggle()
-            return
-        if self.timer.isActive() or self.revision != self.page.current_editor().document().revision():
-            self.rebuild()
-            return
-        if self.matches:
-            self.current = (self.current + direction) % len(self.matches)
-            self.navigate()
-
-    def navigate(self):
-        editor = self.page.current_editor()
-        start, end = self.matches[self.current]
-        cursor = QTextCursor(editor.document())
-        cursor.setPosition(start)
-        cursor.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
-        editor.setTextCursor(cursor)
-        editor.ensureCursorVisible()
-        selection = QTextEdit.ExtraSelection()
-        selection.cursor = cursor
-        selection.format = QTextCharFormat()
-        selection.format.setBackground(theme.color('search.active.bg'))
-        editor.setExtraSelections([selection])
-        self.counter.setText(f"{self.current + 1} / {len(self.matches)}")
-
-    def eventFilter(self, watched, event):
-        if event.type() == QEvent.Type.Resize and watched is self.parentWidget():
-            self.reposition()
-        if not self.isHidden() and event.type() in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress):
-            key = event.key()
-            handled = key == Qt.Key.Key_Escape or (watched is self.input and key in (Qt.Key.Key_Return, Qt.Key.Key_Enter))
-            if handled:
-                if event.type() == QEvent.Type.ShortcutOverride:
-                    event.accept()
-                elif key == Qt.Key.Key_Escape:
-                    self.close_find()
-                else:
-                    self.step(-1 if event.modifiers() & Qt.KeyboardModifier.ShiftModifier else 1)
-                return True
-        return super().eventFilter(watched, event)
-
-
 class TextGlossaryPage(QWidget):
     presentation_changed = Signal()
 
-    def __init__(self, project_root, parent=None, *, syntax_ranges=None):
+    def __init__(self, project_root, parent=None, *, syntax_ranges=None, find_controller=None):
         super().__init__(parent)
         global_root = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation))
         self.paths = {"project": Path(project_root) / "glossary.txt", "global": global_root / "glossary.txt"}
@@ -370,7 +381,8 @@ class TextGlossaryPage(QWidget):
             self.autosave_timers[scope] = timer
             editor.document().contentsChange.connect(
                 lambda position, removed, added, scope=scope: self.text_edited(scope, removed, added))
-        self.find = TextFind(self)
+        self.find = find_controller
+        self.find_target = GlossaryFindTarget(self, self.find) if self.find is not None else None
         self.show_errors()
 
     def current_editor(self):
@@ -482,7 +494,6 @@ class TextGlossaryPage(QWidget):
         self._closing = True
         for timer in self.autosave_timers.values():
             timer.stop()
-        self.find.timer.stop()
         if self.save_entry(show_error=False):
             self._close_accepted = True
             return True
@@ -551,7 +562,8 @@ class TextGlossaryPage(QWidget):
         self.read_clean(scope)
         self.stack.setCurrentWidget(self.current_editor())
         self.buttons[scope].setChecked(True)
-        self.find.attach()
+        if self.find_target is not None:
+            self.find_target.attach()
         if focus:
             self.current_editor().setFocus()
         self.show_errors()
@@ -592,7 +604,8 @@ class TextGlossaryPage(QWidget):
     def open_match(self, result):
         if not self.switch_scope(result["scope"]):
             return
-        self.find.close_find()
+        if self.find is not None:
+            self.find.close_find()
         editor = self.current_editor()
         text = editor.toPlainText()
         start, end = result["start"], result["end"]

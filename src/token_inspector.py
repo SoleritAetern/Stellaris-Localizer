@@ -6,8 +6,8 @@ from pathlib import Path
 from dataclasses import dataclass
 from weakref import ref
 
-from PySide6.QtCore import QAbstractProxyModel, QEvent, QModelIndex, QObject, QPersistentModelIndex, QPointF, QRect, QSize, Qt, QTimer, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QCursor, QIcon, QKeySequence, QPainter, QPen, QPixmap, QTextLine
+from PySide6.QtCore import QAbstractProxyModel, QEvent, QModelIndex, QObject, QPersistentModelIndex, QPointF, QRect, QRectF, QSize, Qt, QTimer, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QCursor, QIcon, QKeySequence, QPainter, QPen, QPixmap, QTextCursor, QTextLine
 from PySide6.QtWidgets import QApplication, QComboBox, QFrame, QHBoxLayout, QLabel, QLayout, QLineEdit, QPushButton, QTextBrowser, QToolButton, QToolTip, QVBoxLayout, QWidget
 from shiboken6 import isValid
 
@@ -16,10 +16,22 @@ from .exact_references import ExactReferences
 from .compact_lookup import LookupIndicator, source_label
 from .text_selection import localization_tokens
 from .icons import paint_check
+from .local_find import LocalFind
 
 
 def python_position(text, position):
     return len(text.encode("utf-16-le")[:position * 2].decode("utf-16-le", errors="ignore"))
+
+
+def span_rects(layout, start, end):
+    """Visual fragments of a UTF-16 range in an existing shaped text layout."""
+    for number in range(layout.lineCount()):
+        line = layout.lineAt(number)
+        left = max(start, line.textStart())
+        right = min(end, line.textStart() + line.textLength())
+        if left < right:
+            x1, x2 = line.cursorToX(left)[0], line.cursorToX(right)[0]
+            yield QRectF(min(x1, x2), line.y(), max(1, abs(x2 - x1)), line.height())
 
 
 class CompactReferenceText(QTextBrowser):
@@ -247,7 +259,7 @@ class TokenInspector(QFrame):
         self._connect(self.nested_delay, self.nested_delay.timeout, self.open_nested_pending)
         self.leave = QTimer(self)
         self.leave.setSingleShot(True)
-        self.leave.setInterval(200)
+        self.leave.setInterval(180)
         self._connect(self.leave, self.leave.timeout, self.close_if_outside)
         self.pointer = QTimer(self)
         self.pointer.setInterval(120)
@@ -764,9 +776,49 @@ class TokenInspector(QFrame):
     def make_hit(view, index, field, text, offset, point, editor=None):
         for token in localization_tokens(text):
             if token.start <= offset < token.end and token.kind in ("variable", "bracket"):
+                anchor = TokenInspector.token_rect(view, index, field, text, token, editor)
+                if anchor.isEmpty():
+                    return None
                 return TokenHit(view, QPersistentModelIndex(index), field, text, token,
-                                QRect(point.x(), point.y(), 1, 18), editor)
+                                anchor, editor)
         return None
+
+    @staticmethod
+    def token_rect(view, index, field, text, token, editor=None):
+        """Global painted/editor geometry, independent of the pointer position."""
+        result = QRectF()
+        if editor is not None:
+            document = editor.document()
+            start = len(text[:token.start].encode("utf-16-le")) // 2
+            end = len(text[:token.end].encode("utf-16-le")) // 2
+            block = document.findBlock(start)
+            while block.isValid() and block.position() < end:
+                layout = block.layout()
+                if not layout.lineCount():
+                    block = block.next()
+                    continue
+                cursor = QTextCursor(block)
+                origin = editor.cursorRect(cursor).topLeft()
+                first = layout.lineAt(0)
+                offset = QPointF(origin) - QPointF(first.cursorToX(0)[0], first.y())
+                for rect in span_rects(layout, max(0, start - block.position()), end - block.position()):
+                    result = result.united(rect.translated(offset))
+                block = block.next()
+            origin = editor.viewport().mapToGlobal(QRect().topLeft())
+        else:
+            option = view._option(index)
+            row = index.data(Qt.ItemDataRole.UserRole)
+            layout = view.itemDelegate().row_layout(option, index)
+            rect, text_layout = ((layout.source, layout.source_layout) if field == "new_text"
+                                 else (layout.russian, layout.russian_layout))
+            shown = text_layout.text()
+            for left, right in LocalFind.display_spans(row, field, token.start, token.end, layout.large_change):
+                start = len(shown[:left].encode("utf-16-le")) // 2
+                end = len(shown[:right].encode("utf-16-le")) // 2
+                for fragment in span_rects(text_layout, start, end):
+                    result = result.united(fragment)
+            origin = view.viewport().mapToGlobal(option.rect.topLeft() + rect.topLeft())
+        return result.translated(QPointF(origin)).toAlignedRect()
 
     def eventFilter(self, watched, event):
         if not self._alive():
@@ -795,7 +847,9 @@ class TokenInspector(QFrame):
         if self.expanding:
             return False
         if (event.type() == QEvent.Type.Enter and self.isVisible() and not self.editing
-                and isinstance(watched, QWidget) and (watched is self or self.isAncestorOf(watched))):
+                and isinstance(watched, QWidget) and (watched is self or self.isAncestorOf(watched)
+                    or any(popup.isVisible() and (watched is popup or popup.isAncestorOf(watched))
+                           for popup in self.nested_popups))):
             # Cancel a gap-crossing timeout on entering the card/buttons, even
             # if Qt has not delivered a MouseMove inside the popup yet.
             self.leave.stop()
@@ -821,9 +875,13 @@ class TokenInspector(QFrame):
                 elif self.pending is None or hit.identity() != self.pending.identity():
                     # Do not destroy the current hover when crossing another
                     # token on the short route to the popup's buttons.
-                    self.leave.stop()
                     self.pending = hit
-                    self.delay.start()
+                    if self.isVisible():
+                        self.delay.stop()
+                        if not self.leave.isActive():
+                            self.leave.start()
+                    else:
+                        self.delay.start()
             elif self.isVisible():
                 if not self.leave.isActive():
                     self.leave.start()
@@ -844,6 +902,7 @@ class TokenInspector(QFrame):
             self.lookup_request.cancel()
             self.lookup_request = None
         self.hit, self.pending = hit, None
+        self.leave.stop()
         self.hide_nested_from(0)
         self.edit_row.hide()
         self.message.clear()
@@ -993,6 +1052,14 @@ class TokenInspector(QFrame):
     def position_panel(self):
         if not self._alive() or self.hit is None or not isValid(self.hit.view):
             return
+        if self.hit.index.isValid():
+            editor = self.hit.editor
+            if editor is not None and (not isValid(editor) or not editor.isVisible()):
+                editor = None
+            anchor = self.token_rect(self.hit.view, self.hit.index, self.hit.field,
+                                     self.hit.text, self.hit.token, editor)
+            if not anchor.isEmpty():
+                self.hit.anchor = anchor
         bounds = self.window.rect().adjusted(8, 8, -8, -8)
         if self.expanded:
             self.ensurePolished()
@@ -1046,13 +1113,29 @@ class TokenInspector(QFrame):
             self.compact_text.setFixedHeight(min(metrics.lineSpacing() * 4, max(metrics.lineSpacing(), text_height)))
             height = self.compact_text.height() + 39
         self.resize(width, height)
+        # Keep sizing independent of proximity to an edge. Placement is clipped
+        # to the visible window/screen, and to the viewport where it fits.
+        screen = QApplication.screenAt(self.hit.anchor.center()) or self.window.screen()
+        if screen is not None:
+            available = screen.availableGeometry()
+            bounds = bounds.intersected(QRect(self.window.mapFromGlobal(available.topLeft()), available.size()))
+        if not self.expanded:
+            viewport = self.hit.view.viewport()
+            visible = QRect(viewport.mapTo(self.window, viewport.rect().topLeft()), viewport.size()).intersected(bounds)
+            if visible.width() >= self.width():
+                bounds.setLeft(visible.left())
+                bounds.setRight(visible.right())
+            if visible.height() >= self.height():
+                bounds.setTop(visible.top())
+                bounds.setBottom(visible.bottom())
         if self.expanded and self._expanded_origin is not None:
             x, y = self._expanded_origin.x(), self._expanded_origin.y()
         else:
-            point = self.window.mapFromGlobal(self.hit.anchor.bottomLeft())
-            x, y = point.x(), point.y() + 3
-            if y + self.height() > bounds.bottom():
-                y = self.window.mapFromGlobal(self.hit.anchor.topLeft()).y() - self.height() - 5
+            anchor = QRect(self.window.mapFromGlobal(self.hit.anchor.topLeft()), self.hit.anchor.size())
+            x = round(anchor.x() + anchor.width() / 2 - self.width() / 2)
+            y = anchor.bottom() + 1 + 5
+            if y + self.height() > bounds.bottom() + 1:
+                y = anchor.top() - self.height() - 5
         self.move(max(bounds.left(), min(x, bounds.right() - self.width() + 1)),
                   max(bounds.top(), min(y, bounds.bottom() - self.height() + 1)))
         self.position_nested()
@@ -1071,9 +1154,10 @@ class TokenInspector(QFrame):
         self.nested_delay.stop()
         self.nested_pending = None
         hit = self.hit_at(QCursor.pos())
-        if hit is not None and any(existing is not None and hit.identity() == existing.identity()
-                                   for existing in (self.hit, self.pending)):
+        if hit is not None and self.hit is not None and hit.identity() == self.hit.identity():
             self.leave.stop()
+            self.delay.stop()
+            self.pending = None
         elif not self.leave.isActive():
             self.leave.start()
 
@@ -1082,9 +1166,13 @@ class TokenInspector(QFrame):
             return
         if not self.editing and not self.expanding and not self.pointer_inside():
             hit = self.hit_at(QCursor.pos())
-            if hit is None or not any(existing is not None and hit.identity() == existing.identity()
-                                      for existing in (self.hit, self.pending)):
+            if hit is None:
                 self.close_preview()
+            elif self.hit is None or hit.identity() != self.hit.identity():
+                # Grace expired: resolve the token still under the pointer now,
+                # not whichever token was briefly crossed on the way here.
+                self.pending = hit
+                self.open_pending()
 
     def begin_display_edit(self):
         if not self._alive() or self.hit is None or not isValid(self.hit.view):
